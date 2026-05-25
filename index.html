@@ -2045,7 +2045,18 @@ function izinHaklariHesapla(){
   }).join('');
 }
 
-function msTab(el,id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc)tc.classList.add('on');}
+function msTab(el,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const tc=document.getElementById(id);
+  if(tc)tc.classList.add('on');
+  // İzin hakları sekmesi açılınca tabloyu güncelle
+  if(id==='MS5'){
+    const tbody=tc?.querySelector('tbody');
+    if(tbody)tbody.innerHTML=izinHaklariHesapla();
+  }
+}
 function msSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Mesai kaydı yok</td></tr>`;
 return list.map(m=>`<tr><td class="mono muted">${fmtD(m.tarih)}</td><td class="bold">${m.per||'?'}</td><td class="mono">${m.giris||'—'}</td><td class="mono">${m.cikis||'—'}</td><td class="mono bold green">${m.toplam||'—'}</td><td>${pill(m.tip||'Normal',m.tip==='Fazla Mesai'?'pa':'pg')}</td><td><button class="ub del" onclick="msX('${m.id}')">✕</button></td></tr>`).join('');}
 function addMesai(){const pId=document.getElementById('MS-P').value;if(!pId){toast('⚠️','Personel seçin!');return;}const per=PERSONEL.find(p=>p.id===pId);const g=document.getElementById('MS-G').value;const c=document.getElementById('MS-C').value;let top='';if(g&&c){const[gh,gm]=g.split(':').map(Number);const[ch,cm]=c.split(':').map(Number);const d=(ch*60+cm)-(gh*60+gm);top=`${Math.floor(d/60)}s ${d%60}dk`;}
