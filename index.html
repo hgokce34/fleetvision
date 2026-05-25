@@ -1897,11 +1897,13 @@ function rPersonel(){
         <div class="fg"><label class="fl">Vardiya</label><select class="fsel" id="PE-V"><option>Gündüz</option><option>Gece</option><option>Dönüşümlü</option></select></div></div>
         <div class="frow"><div class="fg"><label class="fl">İşe Giriş</label><input class="fi" id="PE-I" type="date" value="${today()}"></div>
         <div class="fg"><label class="fl">Durum</label><select class="fsel" id="PE-D"><option>Aktif</option><option>İzinli</option><option>Pasif</option></select></div></div>
+        <div class="frow"><div class="fg"><label class="fl">Doğum Tarihi</label><input class="fi" id="PE-DT" type="date"></div>
+        <div class="fg"><label class="fl">TC Kimlik No</label><input class="fi" id="PE-TC" placeholder="XXXXXXXXXXX"></div></div>
         <button class="fsub" onclick="addPer()">＋ PERSONEL EKLE</button>
       </div>
     </div>`;
 }
-function addPer(){const ad=document.getElementById('PE-A').value.trim();if(!ad){toast('⚠️','Ad soyad zorunlu!');return;}const p={id:uid(),ad,gorev:document.getElementById('PE-G').value,tel:document.getElementById('PE-T').value,vardiya:document.getElementById('PE-V').value,ise_giris:document.getElementById('PE-I').value,durum:document.getElementById('PE-D').value};PERSONEL.push(p);fbSave('personel',p.id,p);toast('◈',`${ad} eklendi!`);rPersonel();}
+function addPer(){const ad=document.getElementById('PE-A').value.trim();if(!ad){toast('⚠️','Ad soyad zorunlu!');return;}const p={id:uid(),ad,gorev:document.getElementById('PE-G').value,tel:document.getElementById('PE-T').value,vardiya:document.getElementById('PE-V').value,ise_giris:document.getElementById('PE-I').value,durum:document.getElementById('PE-D').value,dogum_tarihi:document.getElementById('PE-DT')?.value||'',tc:document.getElementById('PE-TC')?.value||''};PERSONEL.push(p);fbSave('personel',p.id,p);toast('◈',`${ad} eklendi!`);rPersonel();}
 function perX(id){if(!confirm('Silinecek?'))return;const i=PERSONEL.findIndex(p=>p.id===id);if(i>=0){fbDel('personel',id);PERSONEL.splice(i,1);}localStorage.setItem('fv_per_version',Date.now());toast('◈','Silindi!');rPersonel();}
 function perD(i,d){PERSONEL[i].durum=d;fbSave('personel',PERSONEL[i].id,PERSONEL[i]);toast('◈',`${PERSONEL[i].ad}: ${d}`);}
 function expPer(){const h='Ad Soyad,Görev,Vardiya,Tel,Durum,İşe Giriş\n';dlCSV(h+PERSONEL.map(p=>`${p.ad},${p.gorev},${p.vardiya||''},${p.tel||''},${p.durum},${p.ise_giris||''}`).join('\n'),'personel_listesi');}
@@ -1916,6 +1918,7 @@ function rMesai(){
       <button class="tab-btn" onclick="msTab(this,'MS2')">🏖️ İzin</button>
       <button class="tab-btn" onclick="msTab(this,'MS3')">🔄 Vardiya</button>
       <button class="tab-btn" onclick="msTab(this,'MS4')">📊 Rapor</button>
+      <button class="tab-btn" onclick="msTab(this,'MS5')">📋 İzin Hakları</button>
     </div>
     <div class="tab-c on" id="MS1">
       <div class="g2">
@@ -1971,10 +1974,79 @@ function rMesai(){
           <div class="cw" style="--ch:200px"><canvas id="MS-PIE"></canvas></div>
         </div>
       </div>
+    <div class="tab-c" id="MS5">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div>
+          <div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>PERSONEL</th>
+            <th>İŞE GİRİŞ</th>
+            <th>KIDEM</th>
+            <th>YASAL HAKK</th>
+            <th>KULLANILAN</th>
+            <th>KALAN</th>
+            <th>DURUM</th>
+          </tr></thead>
+          <tbody>${izinHaklariHesapla()}</tbody>
+        </table></div>
+      </div>
+    </div>
     </div>`;
   const vT=['Gündüz','Gece','Dönüşümlü','Esnek'];
   CH.msPie=mkDonut('MS-PIE',vT,vT.map(v=>PERSONEL.filter(p=>p.vardiya===v).length));
 }
+function izinHakkiHesapla(iseGiris, dogumTarihi){
+  if(!iseGiris)return{yil:0,hak:14,kullanilan:0,kalan:14};
+  const bugun=new Date();
+  const giris=new Date(iseGiris);
+  const yil=Math.floor((bugun-giris)/(365.25*24*3600*1000));
+  // Yaş hesabı
+  let yas=0;
+  if(dogumTarihi){
+    const dt=new Date(dogumTarihi);
+    yas=Math.floor((bugun-dt)/(365.25*24*3600*1000));
+  }
+  // İş Kanunu 53. Madde
+  let hak=14;
+  if(yil>=15) hak=26;
+  else if(yil>=5) hak=20;
+  else if(yil>=1) hak=14;
+  else hak=0; // 1 yıl dolmadı
+  // 50+ yaş minimum 20 gün
+  if(yas>=50&&hak<20) hak=20;
+  return{yil,hak,yas};
+}
+
+function izinHaklariHesapla(){
+  if(!PERSONEL.length) return '<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Personel bulunamadı</td></tr>';
+  return PERSONEL.map(p=>{
+    const {yil,hak,yas}=izinHakkiHesapla(p.ise_giris, p.dogum_tarihi);
+    // Bu personelin kullandığı izin günleri
+    const kullanilan=IZIN_LIST
+      .filter(iz=>iz.per_id===p.id&&iz.durum==='Onaylandı')
+      .reduce((s,iz)=>{
+        if(!iz.baslangic||!iz.bitis)return s;
+        const gun=Math.round((new Date(iz.bitis)-new Date(iz.baslangic))/(864e5))+1;
+        return s+gun;
+      },0);
+    const kalan=Math.max(0,hak-kullanilan);
+    const durum=hak===0?'⏳ Hak Kazanmadı':kalan===0?'❌ Tükendi':kalan<=3?'⚠️ Az Kaldı':'✅ Normal';
+    const durumRenk=hak===0?'var(--t3)':kalan===0?'var(--r)':kalan<=3?'var(--a)':'var(--g)';
+    return `<tr>
+      <td class="bold">${p.ad}</td>
+      <td class="mono muted">${p.ise_giris?new Date(p.ise_giris).toLocaleDateString('tr-TR'):'—'}</td>
+      <td class="mono">${yil} yıl${yas?` · ${yas} yaş`:''}</td>
+      <td class="mono bold" style="color:var(--b)">${hak} gün</td>
+      <td class="mono" style="color:var(--r)">${kullanilan} gün</td>
+      <td class="mono bold" style="color:${durumRenk}">${kalan} gün</td>
+      <td><span class="pill" style="background:${durumRenk}20;color:${durumRenk}">${durum}</span></td>
+    </tr>`;
+  }).join('');
+}
+
 function msTab(el,id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc)tc.classList.add('on');}
 function msSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Mesai kaydı yok</td></tr>`;
 return list.map(m=>`<tr><td class="mono muted">${fmtD(m.tarih)}</td><td class="bold">${m.per||'?'}</td><td class="mono">${m.giris||'—'}</td><td class="mono">${m.cikis||'—'}</td><td class="mono bold green">${m.toplam||'—'}</td><td>${pill(m.tip||'Normal',m.tip==='Fazla Mesai'?'pa':'pg')}</td><td><button class="ub del" onclick="msX('${m.id}')">✕</button></td></tr>`).join('');}
