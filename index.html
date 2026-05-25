@@ -775,8 +775,17 @@ function go(page,el){
   else{const f=document.querySelector(`.ni[onclick*="'${page}'"]`);if(f)f.classList.add('on');}
   const pt=document.getElementById('PGT');if(pt)pt.textContent=TITLES[page]||page;
   Object.values(CH).forEach(c=>{try{c.destroy();}catch(e){}});CH={};
-  const adm=['panel','harita','bakim','musteri','sozlesme','ceza','kaza','raporlar','ai','kullanici','ayarlar','mesai','hakedis','personel','depo','lastik','yedek','ariza','yakit'];
-  if(adm.includes(page)&&!isA()){rDenied();return;}
+  // Yetki kontrolü - admin her şeyi görür, user yetkilerine göre
+  if(!isA()){
+    const adminOnly=['kullanici','ayarlar'];
+    if(adminOnly.includes(page)){rDenied();return;}
+    // Kullanıcı yetkilerini kontrol et
+    const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
+    const usr=u[CU.username];
+    if(usr&&usr.yetkiler&&Object.keys(usr.yetkiler).length>0){
+      if(usr.yetkiler[page]===false){rDenied();return;}
+    }
+  }
   const R={panel:rPanel,harita:rHarita,musteri:rMusteri,sozlesme:rSozlesme,ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,hakedis:rHakedis,depo:rDepo,lastik:rLastik,yedek:rYedek,ai:rAI,arsiv:rArsiv,kullanici:rKul,ayarlar:rAyarlar,op_kayit:()=>openMB('OM'),yakit_g:rYakitG};
   if(R[page])R[page]();else rCS(TITLES[page]||page);
 }
