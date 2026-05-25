@@ -366,18 +366,19 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
         <button class="btn pri" onclick="toggleQMenu()" id="QMBTN">＋ Hızlı Kayıt ▾</button>
         <div id="QMENU" style="display:none;position:fixed;right:10px;top:52px;background:var(--s2);border:1px solid var(--bdr2);border-radius:12px;padding:8px;min-width:200px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.4)">
           <div style="font-size:8px;color:var(--t3);font-family:var(--mono);padding:4px 8px;letter-spacing:.1em">HIZLI KAYIT</div>
-          <div onclick="go('rYakit');toggleQMenu()" class="qmi">⛽ Yakıt Kaydı</div>
-          <div onclick="go('rBakim');toggleQMenu()" class="qmi">🔧 Bakım Kaydı</div>
-          <div onclick="go('rAriza');toggleQMenu()" class="qmi">⚡ Arıza Kaydı</div>
-          <div onclick="go('rArac');toggleQMenu()" class="qmi">🚛 Araç Ekle</div>
-          <div onclick="go('rPersonel');toggleQMenu()" class="qmi">👤 Personel Ekle</div>
-          <div onclick="go('rLastik');toggleQMenu()" class="qmi">🏷️ Lastik Kaydı</div>
-          <div onclick="go('rYedek');toggleQMenu()" class="qmi">📦 Yedek Parça</div>
-          <div onclick="go('rCeza');toggleQMenu()" class="qmi">🚦 Ceza Kaydı</div>
-          <div onclick="go('rKaza');toggleQMenu()" class="qmi">💥 Kaza Kaydı</div>
-          <div onclick="go('rMusteri');toggleQMenu()" class="qmi">🤝 Müşteri Ekle</div>
-          <div onclick="go('rSozlesme');toggleQMenu()" class="qmi">📋 Sözleşme Ekle</div>
-          <div onclick="go('rHakedis');toggleQMenu()" class="qmi">📊 Hakediş</div>
+          <div onclick="hKayit('yakit')" class="qmi">⛽ Yakıt Kaydı</div>
+          <div onclick="hKayit('bakim')" class="qmi">🔧 Bakım Kaydı</div>
+          <div onclick="hKayit('ariza')" class="qmi">⚡ Arıza Kaydı</div>
+          <div onclick="hKayit('arac')" class="qmi">🚛 Araç Ekle</div>
+          <div onclick="hKayit('personel')" class="qmi">👤 Personel Ekle</div>
+          <div onclick="hKayit('lastik')" class="qmi">🏷️ Lastik Kaydı</div>
+          <div onclick="hKayit('yedek')" class="qmi">📦 Yedek Parça</div>
+          <div onclick="hKayit('ceza')" class="qmi">🚦 Ceza Kaydı</div>
+          <div onclick="hKayit('kaza')" class="qmi">💥 Kaza Kaydı</div>
+          <div onclick="hKayit('musteri')" class="qmi">🤝 Müşteri Ekle</div>
+          <div onclick="hKayit('sozlesme')" class="qmi">📋 Sözleşme Ekle</div>
+          <div onclick="hKayit('hakedis')" class="qmi">📊 Hakediş Ekle</div>
+          <div onclick="hKayit('stok')" class="qmi">📦 Stok Kaydı</div>
         </div>
       </div>
         <button class="mob-menu-btn" onclick="logout()" title="Çıkış" style="color:var(--r);border-color:rgba(255,68,85,.3)">⏻</button>
@@ -544,6 +545,48 @@ function applyTheme(t){
   if(btn)btn.textContent=t==='dark'?'🌙':'☀️';
 }
 
+
+
+function hKayit(tip){
+  toggleQMenu();
+  // Önce ilgili modüle git, sonra formu aç
+  const map={
+    yakit:{fn:'rYakit', formId:'YK-T', scrollId:'YK-T'},
+    bakim:{fn:'rBakim', formId:'BK-A', scrollId:'BK-A'},
+    ariza:{fn:'rAriza', formId:'AZ-P', scrollId:'AZ-P'},
+    arac:{fn:'rArac', formId:'AR-P', scrollId:'AR-P'},
+    personel:{fn:'rPersonel', formId:'PR-A', scrollId:'PR-A'},
+    lastik:{fn:'rLastik', formId:'LT-P', scrollId:'LT-P'},
+    yedek:{fn:'rYedek', formId:'YP-A', scrollId:'YP-A'},
+    ceza:{fn:'rCeza', formId:'CZ-P', scrollId:'CZ-P'},
+    kaza:{fn:'rKaza', formId:'KZ-P', scrollId:'KZ-P'},
+    musteri:{fn:'rMusteri', formId:'MS-A', scrollId:'MS-A'},
+    sozlesme:{fn:'rSozlesme', formId:'SZ-M', scrollId:'SZ-M'},
+    hakedis:{fn:'rHakedis', formId:'HK-P', scrollId:'HK-P'},
+    stok:{fn:'rDepo', formId:'ST-A', scrollId:'ST-A'},
+  };
+  const m=map[tip];
+  if(!m)return;
+  go(m.fn);
+  // Modül yüklendikten sonra form alanına scroll
+  setTimeout(()=>{
+    const el=document.getElementById(m.formId);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.focus();
+      // Form kartını highlight et
+      const card=el.closest('.card');
+      if(card){
+        card.style.border='1px solid var(--g)';
+        card.style.boxShadow='0 0 20px rgba(0,255,136,.15)';
+        setTimeout(()=>{
+          card.style.border='';
+          card.style.boxShadow='';
+        },2000);
+      }
+    }
+  },300);
+}
 
 function toggleQMenu(){
   const m=document.getElementById('QMENU');
