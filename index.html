@@ -604,7 +604,7 @@ async function fbLoad(){
   try{
     const[ar,bk,st,lt,yp,pr,op,yk,ms,iz,hk,az,per,
           sig,eks,uy,ftr,tah,gl,sa,asat,mal,sgv,kul,
-          mus,soz,cez,kaz,maliyet]=await Promise.all([
+          mus,soz,cez,kaz]=await Promise.all([
       fbGetAll('araclar'),fbGetAll('bakim'),fbGetAll('stok'),fbGetAll('lastik'),
       fbGetAll('yedek'),fbGetAll('projeler'),fbGetAll('operasyonlar'),fbGetAll('yakitlar'),
       fbGetAll('mesai'),fbGetAll('izin'),fbGetAll('hakedis'),fbGetAll('ariza'),
@@ -614,47 +614,22 @@ async function fbLoad(){
       fbGetAll('satin_alma'),fbGetAll('arac_satis'),fbGetAll('maliyet'),
       fbGetAll('surucu_gorev'),fbGetAll('users'),
       fbGetAll('musteriler'),fbGetAll('sozlesmeler'),fbGetAll('cezalar'),
-      fbGetAll('kazalar'),fbGetAll('maliyet')
+      fbGetAll('kazalar')
     ]);
-    // Tüm listeler için: Firebase'den yükle, ama silme işlemlerini de uygula
-    function fbSync(fbList,localList,koleksiyon){
-      if(!fbList.length)return;
-      const localIds=new Set(localList.map(x=>x.id));
-      // Local'de olmayan FB kayıtlarını sil (kullanıcı silmiş)
-      fbList.forEach(async x=>{if(!localIds.has(x.id))await fbDel(koleksiyon,x.id);});
-      // Local'deki ID'leri FB ile güncelle
-      if(localList.length===0&&fbList.length>0){
-        // Local boş ama FB'de var — FB'den yükle
-        localList.splice(0,localList.length,...fbList);
-      }
-    }
-    // Personel özel işlem
-    if(per.length){
-      const saved=localStorage.getItem('fv_per_version');
-      if(!saved){
-        // İlk kez — FB'den yükle
-        PERSONEL.splice(0,PERSONEL.length,...per);
-      } else {
-        // Daha önce değişiklik yapılmış — local öncelikli, FB'yi güncelle
-        const localIds=new Set(PERSONEL.map(p=>p.id));
-        for(const p of per){if(!localIds.has(p.id))await fbDel('personel',p.id);}
-      }
-    }
-    // Temel veriler
-    if(ar.length){ARACLAR.splice(0,ARACLAR.length,...ar);}
-    if(bk.length){BAKIM_LIST.splice(0,BAKIM_LIST.length,...bk);}
-    if(st.length){STOK.splice(0,STOK.length,...st);}
-    if(lt.length){LASTIK_LIST.splice(0,LASTIK_LIST.length,...lt);}
-    if(yp.length){YEDEK_LIST.splice(0,YEDEK_LIST.length,...yp);}
-    if(pr.length){PROJE_LIST.splice(0,PROJE_LIST.length,...pr);}
-    if(op.length){OPERASYONLAR.splice(0,OPERASYONLAR.length,...op);}
-    if(yk.length){YAKITLAR.splice(0,YAKITLAR.length,...yk);}
-    if(ms.length){MESAI_LIST.splice(0,MESAI_LIST.length,...ms);}
-    if(iz.length){IZIN_LIST.splice(0,IZIN_LIST.length,...iz);}
-    if(hk.length){HAKEDIS_LIST.splice(0,HAKEDIS_LIST.length,...hk);}
-    if(az.length){ARIZA_LIST.splice(0,ARIZA_LIST.length,...az);}
-    if(per.length){PERSONEL.splice(0,PERSONEL.length,...per);}
-    // Yeni modüller
+    // Tüm listeler Firebase'den yükle
+    if(ar.length)ARACLAR.splice(0,ARACLAR.length,...ar);
+    if(bk.length)BAKIM_LIST.splice(0,BAKIM_LIST.length,...bk);
+    if(st.length)STOK.splice(0,STOK.length,...st);
+    if(lt.length)LASTIK_LIST.splice(0,LASTIK_LIST.length,...lt);
+    if(yp.length)YEDEK_LIST.splice(0,YEDEK_LIST.length,...yp);
+    if(pr.length)PROJE_LIST.splice(0,PROJE_LIST.length,...pr);
+    if(op.length)OPERASYONLAR.splice(0,OPERASYONLAR.length,...op);
+    if(yk.length)YAKITLAR.splice(0,YAKITLAR.length,...yk);
+    if(ms.length)MESAI_LIST.splice(0,MESAI_LIST.length,...ms);
+    if(iz.length)IZIN_LIST.splice(0,IZIN_LIST.length,...iz);
+    if(hk.length)HAKEDIS_LIST.splice(0,HAKEDIS_LIST.length,...hk);
+    if(az.length)ARIZA_LIST.splice(0,ARIZA_LIST.length,...az);
+    if(per.length)PERSONEL.splice(0,PERSONEL.length,...per);
     if(sig.length)SIGORTA_LIST.splice(0,SIGORTA_LIST.length,...sig);
     if(eks.length)EKSPERTIZ_LIST.splice(0,EKSPERTIZ_LIST.length,...eks);
     if(uy.length)USTYAPI_LIST.splice(0,USTYAPI_LIST.length,...uy);
@@ -669,9 +644,8 @@ async function fbLoad(){
     if(soz.length)SOZLESME_LIST.splice(0,SOZLESME_LIST.length,...soz);
     if(cez.length)CEZA_LIST.splice(0,CEZA_LIST.length,...cez);
     if(kaz.length)KAZA_LIST.splice(0,KAZA_LIST.length,...kaz);
-    // Kullanıcılar
     if(kul.length){const u=JSON.parse(localStorage.getItem('fv_users')||'{}');kul.forEach(x=>{if(x.id)u[x.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev,yetkiler:x.yetkiler||{}};});localStorage.setItem('fv_users',JSON.stringify(u));}
-        console.log('✅ Firebase yüklendi');
+    console.log('✅ Firebase yüklendi');
   }catch(e){console.warn('FB yükleme:',e);}
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
