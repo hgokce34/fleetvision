@@ -415,14 +415,29 @@ let ARACLAR=[
   {id:'a8',plaka:'34 YZA 008',tip:'Ekskavatör',marka:'Komatsu',model:'PC360',yil:2021,durum:'Aktif',saat:7200,bolge:'Bursa',bkm:40},
 ];
 let PERSONEL=[
-  {id:'p1',ad:'Ahmet Yılmaz',gorev:'Operatör',tel:'0532 111 1111',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2020-01-15'},
-  {id:'p2',ad:'Mehmet Kaya',gorev:'Operatör',tel:'0533 222 2222',vardiya:'Gece',durum:'Aktif',ise_giris:'2019-06-01'},
-  {id:'p3',ad:'Ali Demir',gorev:'Bakım Teknisyeni',tel:'0534 333 3333',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2021-03-10'},
-  {id:'p4',ad:'Hasan Türk',gorev:'Saha Şefi',tel:'0535 444 4444',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2018-09-01'},
-  {id:'p5',ad:'Murat Şahin',gorev:'Operatör',tel:'0536 555 5555',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2022-02-15'},
-  {id:'p6',ad:'Serkan Çelik',gorev:'Operatör',tel:'0537 666 6666',vardiya:'Gece',durum:'Aktif',ise_giris:'2021-11-01'},
-  {id:'p7',ad:'Kemal Arslan',gorev:'Bakım Teknisyeni',tel:'0538 777 7777',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2023-01-10'},
-  {id:'p8',ad:'Ömer Kılıç',gorev:'Şoför',tel:'0539 888 8888',vardiya:'Gündüz',durum:'İzinli',ise_giris:'2020-07-20'},
+  {id:'p1',ad:'Ahmet Yılmaz',gorev:'Operatör',tel:'0532 111 1111',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2020-01-15',surucu:true,ehliyet:'B,C,D',atanan_arac:'34 ABC 001',toplam_km:45200,ihlal:1,puan:87},
+  {id:'p2',ad:'Mehmet Kaya',gorev:'Operatör',tel:'0533 222 2222',vardiya:'Gece',durum:'Aktif',ise_giris:'2019-06-01',surucu:true,ehliyet:'B,C',atanan_arac:'34 DEF 002',toplam_km:38400,ihlal:0,puan:95},
+  {id:'p3',ad:'Ali Demir',gorev:'Bakım Teknisyeni',tel:'0534 333 3333',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2021-03-10',surucu:false,ehliyet:'B',atanan_arac:'',toplam_km:0,ihlal:0,puan:100},
+  {id:'p4',ad:'Hasan Türk',gorev:'Saha Şefi',tel:'0535 444 4444',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2018-09-01',surucu:true,ehliyet:'B,C,D,E',atanan_arac:'34 GHI 003',toplam_km:92100,ihlal:2,puan:78},
+  {id:'p5',ad:'Murat Şahin',gorev:'Operatör',tel:'0536 555 5555',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2022-02-15',surucu:true,ehliyet:'B,C',atanan_arac:'34 JKL 004',toplam_km:28500,ihlal:0,puan:92},
+  {id:'p6',ad:'Serkan Çelik',gorev:'Operatör',tel:'0537 666 6666',vardiya:'Gece',durum:'Aktif',ise_giris:'2021-07-01',surucu:true,ehliyet:'B',atanan_arac:'',toplam_km:15200,ihlal:1,puan:83},
+  {id:'p7',ad:'Fatma Arslan',gorev:'İdari Personel',tel:'0538 777 7777',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2023-01-10',surucu:false,ehliyet:'B',atanan_arac:'',toplam_km:0,ihlal:0,puan:100},
+  {id:'p8',ad:'Kemal Yıldız',gorev:'Operatör',tel:'0539 888 8888',vardiya:'Gece',durum:'İzinli',ise_giris:'2020-08-15',surucu:true,ehliyet:'B,C',atanan_arac:'',toplam_km:52300,ihlal:3,puan:71},
+];
+let SURUCU_GOREV=[ 
+  {id:'sg1',surucu_id:'p1',surucu:'Ahmet Yılmaz',plaka:'34 ABC 001',baslangic:'2026-05-01',bitis:'',mesafe:1240,yakit:180,durum:'Aktif',not:''},
+  {id:'sg2',surucu_id:'p2',surucu:'Mehmet Kaya',plaka:'34 DEF 002',baslangic:'2026-05-03',bitis:'2026-05-10',mesafe:860,yakit:120,durum:'Tamamlandı',not:''},
+  {id:'sg3',surucu_id:'p4',surucu:'Hasan Türk',plaka:'34 GHI 003',baslangic:'2026-05-15',bitis:'',mesafe:2100,yakit:310,durum:'Aktif',not:'Uzun mesafe'},
+];
+let MALIYET_LIST=[
+  {id:'m1',plaka:'34 ABC 001',kategori:'Yakıt',tutar:8500,tarih:'2026-05-01',aciklama:'Aylık yakıt'},
+  {id:'m2',plaka:'34 ABC 001',kategori:'Bakım',tutar:3200,tarih:'2026-04-15',aciklama:'Periyodik bakım'},
+  {id:'m3',plaka:'34 DEF 002',kategori:'Tamir',tutar:12000,tarih:'2026-05-10',aciklama:'Motor tamiri'},
+  {id:'m4',plaka:'34 GHI 003',kategori:'Yakıt',tutar:15200,tarih:'2026-05-01',aciklama:'Aylık yakıt'},
+  {id:'m5',plaka:'34 GHI 003',kategori:'Lastik',tutar:8800,tarih:'2026-04-20',aciklama:'4 adet lastik'},
+  {id:'m6',plaka:'34 JKL 004',kategori:'Sigorta',tutar:6500,tarih:'2026-05-01',aciklama:'Kasko ödemesi'},
+  {id:'m7',plaka:'34 DEF 002',kategori:'Yakıt',tutar:6200,tarih:'2026-05-15',aciklama:'Yakıt alımı'},
+  {id:'m8',plaka:'34 ABC 001',kategori:'Ceza',tutar:450,tarih:'2026-05-18',aciklama:'Hız ihlali'},
 ];
 let YAKITLAR=[];
 let OPERASYONLAR=[];
@@ -504,7 +519,9 @@ const NAV_A=[
   {id:'ariza',i:'⚡',l:'Arıza Merkezi',b:'2'},
   {s:'İNSAN KAYNAKLARI'},{id:'personel',i:'👥',l:'Personel'},
   {id:'mesai',i:'🕐',l:'Mesai & İzin'},
-  {s:'MALİYET'},{id:'hakedis',i:'💰',l:'Hakediş & Proje'},
+  {s:'MALİYET'},{id:'surucu',i:'🧑‍✈️',l:'Sürücü Takibi'},
+  {id:'maliyet',i:'💹',l:'Maliyet Analizi'},
+  {id:'hakedis',i:'💰',l:'Hakediş & Proje'},
   {s:'DEPO'},{id:'depo',i:'📦',l:'Depo Yönetimi'},
   {id:'lastik',i:'🛞',l:'Lastik Yönetimi'},
   {id:'yedek',i:'🔩',l:'Yedek Parça'},
@@ -525,7 +542,7 @@ const NAV_U=[
   {s:'BİLGİ'},{id:'arac',i:'🚛',l:'Araç Listesi'},
   {id:'arsiv',i:'📂',l:'Kayıtlarım'},
 ];
-const TITLES={panel:'Ana Panel',arac:'Araç Yönetimi',yakit:'Yakıt Yönetimi',bakim:'Bakım Takip',ariza:'Arıza Merkezi',personel:'Personel Yönetimi',mesai:'Mesai & İzin',hakedis:'Hakediş & Proje',depo:'Depo Yönetimi',lastik:'Lastik Yönetimi',yedek:'Yedek Parça',ai:'AI Analitik',arsiv:'Arşiv',raporlar:'Raporlar',musteri:'Müşteri Yönetimi',sozlesme:'Sözleşme Yönetimi',ceza:'Ceza Yönetimi',kaza:'Kaza & Hasar',harita:'Canlı Harita',kullanici:'Kullanıcı Yönetimi',ayarlar:'Sistem Ayarları',op_kayit:'Yeni Operasyon',yakit_g:'Yakıt Girişi'};
+const TITLES={panel:'Ana Panel',surucu:'Sürücü Takibi',maliyet:'Maliyet Analizi',arac:'Araç Yönetimi',yakit:'Yakıt Yönetimi',bakim:'Bakım Takip',ariza:'Arıza Merkezi',personel:'Personel Yönetimi',mesai:'Mesai & İzin',hakedis:'Hakediş & Proje',depo:'Depo Yönetimi',lastik:'Lastik Yönetimi',yedek:'Yedek Parça',ai:'AI Analitik',arsiv:'Arşiv',raporlar:'Raporlar',musteri:'Müşteri Yönetimi',sozlesme:'Sözleşme Yönetimi',ceza:'Ceza Yönetimi',kaza:'Kaza & Hasar',harita:'Canlı Harita',kullanici:'Kullanıcı Yönetimi',ayarlar:'Sistem Ayarları',op_kayit:'Yeni Operasyon',yakit_g:'Yakıt Girişi'};
 
 /* ============================================================
    SAAT & TEMA
@@ -778,7 +795,7 @@ function go(page,el){
     }
   }
   const pages={
-    panel:rPanel,harita:rHarita,musteri:rMusteri,sozlesme:rSozlesme,
+    panel:rPanel,harita:rHarita,surucu:rSurucu,maliyet:rMaliyet,musteri:rMusteri,sozlesme:rSozlesme,
     ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,
     bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,
     hakedis:rHakedis,depo:rDepo,lastik:rLastik,yedek:rYedek,
@@ -1812,6 +1829,269 @@ function expYedek(){const h='Kod,Ad,Araç Tipi,Marka,Raf,Stok,Eşik,Fiyat,Değer
 /* ============================================================
    12. AI ANALİTİK
 ============================================================ */
+function rSurucu(){
+  const surucular=PERSONEL.filter(p=>p.surucu);
+  const aktif=SURUCU_GOREV.filter(g=>g.durum==='Aktif');
+  document.getElementById('CNT').innerHTML=`
+    <div class="g4">
+      ${kpi(surucular.length,'Toplam Sürücü','kayıtlı','nt','🧑‍✈️','#00ff88',.00)}
+      ${kpi(aktif.length,'Aktif Görev','sahada','up','🚛','#4488ff',.05)}
+      ${kpi(surucular.reduce((s,p)=>s+(p.toplam_km||0),0).toLocaleString()+' km','Toplam KM','filo','nt','🛣️','#ffaa00',.10)}
+      ${kpi(Math.round(surucular.reduce((s,p)=>s+(p.puan||0),0)/Math.max(surucular.length,1)),'Ort. Puan','performans','up','⭐','#00ff88',.15)}
+    </div>
+
+    <div class="g2">
+      <!-- SÜRÜCÜ KARTLARI -->
+      <div class="card">
+        <div class="ch"><div class="ct">🧑‍✈️ Sürücü Performansı</div></div>
+        ${surucular.map(p=>{
+          const puan=p.puan||0;
+          const renk=puan>=90?'var(--g)':puan>=70?'var(--a)':'var(--r)';
+          const gorev=SURUCU_GOREV.find(g=>g.surucu_id===p.id&&g.durum==='Aktif');
+          return `<div style="background:var(--s3);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+              <div style="width:42px;height:42px;background:var(--s4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🧑‍✈️</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:13px">${p.ad}</div>
+                <div style="font-size:9px;color:var(--t3);font-family:var(--mono)">${p.gorev} · Ehliyet: ${p.ehliyet||'—'}</div>
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:20px;font-weight:900;color:${renk}">${puan}</div>
+                <div style="font-size:8px;color:var(--t3)">PUAN</div>
+              </div>
+            </div>
+            <div style="height:6px;background:var(--s4);border-radius:3px;margin-bottom:8px">
+              <div style="height:100%;width:${puan}%;background:${renk};border-radius:3px;transition:width .5s"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:10px">
+              <div style="text-align:center;padding:6px;background:var(--s4);border-radius:6px">
+                <div style="font-weight:700;color:var(--g)">${fmtN(p.toplam_km||0)}</div>
+                <div style="color:var(--t3);font-size:8px">KM</div>
+              </div>
+              <div style="text-align:center;padding:6px;background:var(--s4);border-radius:6px">
+                <div style="font-weight:700;color:${p.ihlal>0?'var(--r)':'var(--g)'}">${p.ihlal||0}</div>
+                <div style="color:var(--t3);font-size:8px">İHLAL</div>
+              </div>
+              <div style="text-align:center;padding:6px;background:var(--s4);border-radius:6px">
+                <div style="font-weight:700;color:var(--b)">${gorev?gorev.plaka:'—'}</div>
+                <div style="color:var(--t3);font-size:8px">ARAÇ</div>
+              </div>
+            </div>
+            ${gorev?`<div style="margin-top:8px;padding:6px 10px;background:rgba(0,255,136,.08);border-radius:6px;font-size:10px;color:var(--g)">
+              🚛 Aktif: ${gorev.plaka} · ${fmtN(gorev.mesafe)} km · ${gorev.yakit}L yakıt
+            </div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- GÖREV ATAMA + AKTİF GÖREVLER -->
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="ch"><div class="ct">➕ Görev Ata</div></div>
+          <div class="fg"><label class="fl">Sürücü *</label>
+            <select class="fsel" id="SG-S">
+              <option value="">Seçin...</option>
+              ${surucular.map(p=>`<option value="${p.id}">${p.ad}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Araç *</label>
+            <select class="fsel" id="SG-A">
+              <option value="">Seçin...</option>
+              ${ARACLAR.map(a=>`<option value="${a.plaka}">${a.plaka} — ${a.tip}</option>`).join('')}
+            </select>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Başlangıç</label><input class="fi" id="SG-B" type="date" value="${today()}"></div>
+            <div class="fg"><label class="fl">Bitiş</label><input class="fi" id="SG-E" type="date"></div>
+          </div>
+          <div class="fg"><label class="fl">Not</label><input class="fi" id="SG-N" placeholder="Görev notu..."></div>
+          <button class="fsub" onclick="addGorev()">◈ GÖREV ATA</button>
+        </div>
+
+        <div class="card">
+          <div class="ch"><div class="ct">📋 Aktif Görevler</div></div>
+          ${SURUCU_GOREV.map((g,i)=>`
+            <div style="padding:10px;background:var(--s3);border-radius:8px;margin-bottom:6px;border-left:3px solid ${g.durum==='Aktif'?'var(--g)':'var(--bdr)'}">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:700;font-size:12px">${g.surucu}</div>
+                  <div style="font-size:10px;color:var(--t3);font-family:var(--mono)">${g.plaka} · ${fmtD(g.baslangic)} → ${g.bitis?fmtD(g.bitis):'Devam ediyor'}</div>
+                </div>
+                <div style="display:flex;gap:5px;align-items:center">
+                  <span class="pill" style="background:${g.durum==='Aktif'?'rgba(0,255,136,.15)':'rgba(100,100,100,.15)'};color:${g.durum==='Aktif'?'var(--g)':'var(--t3)'}">${g.durum}</span>
+                  ${g.durum==='Aktif'?`<button class="ub" onclick="gorevBitir(${i})" style="color:var(--a)">Bitir</button>`:''}
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--t3)">
+                <span>🛣️ ${fmtN(g.mesafe)} km</span>
+                <span>⛽ ${g.yakit}L</span>
+                ${g.not?`<span>📝 ${g.not}</span>`:''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addGorev(){
+  const sid=document.getElementById('SG-S')?.value;
+  const plaka=document.getElementById('SG-A')?.value;
+  const bas=document.getElementById('SG-B')?.value;
+  const bit=document.getElementById('SG-E')?.value||'';
+  const not=document.getElementById('SG-N')?.value||'';
+  if(!sid||!plaka||!bas){toast('⚠️','Sürücü, araç ve başlangıç tarihini doldurun!');return;}
+  const per=PERSONEL.find(p=>p.id===sid);
+  if(!per){return;}
+  const yeni={id:'sg'+Date.now(),surucu_id:sid,surucu:per.ad,plaka,baslangic:bas,bitis:bit,mesafe:0,yakit:0,durum:bit&&bit<today()?'Tamamlandı':'Aktif',not};
+  SURUCU_GOREV.push(yeni);
+  if(window._fbReady)fbSave('surucu_gorev',yeni.id,yeni);
+  toast('🧑‍✈️',`${per.ad} → ${plaka} görevi atandı!`);
+  rSurucu();
+}
+
+function gorevBitir(i){
+  SURUCU_GOREV[i].durum='Tamamlandı';
+  SURUCU_GOREV[i].bitis=today();
+  if(window._fbReady)fbSave('surucu_gorev',SURUCU_GOREV[i].id,SURUCU_GOREV[i]);
+  toast('✓','Görev tamamlandı!');
+  rSurucu();
+}
+
+function rMaliyet(){
+  const toplamMaliyet=MALIYET_LIST.reduce((s,m)=>s+(m.tutar||0),0);
+  const buAy=MALIYET_LIST.filter(m=>m.tarih&&m.tarih.startsWith('2026-05'));
+  const buAyTop=buAy.reduce((s,m)=>s+(m.tutar||0),0);
+
+  // Araç bazlı maliyet
+  const aracMaliyet={};
+  MALIYET_LIST.forEach(m=>{
+    if(!aracMaliyet[m.plaka])aracMaliyet[m.plaka]=0;
+    aracMaliyet[m.plaka]+=(m.tutar||0);
+  });
+
+  // Kategori bazlı
+  const katMaliyet={};
+  MALIYET_LIST.forEach(m=>{
+    if(!katMaliyet[m.kategori])katMaliyet[m.kategori]=0;
+    katMaliyet[m.kategori]+=(m.tutar||0);
+  });
+  const katRenk={Yakıt:'#ffaa00',Bakım:'#4488ff',Tamir:'#ff4455',Lastik:'#aa66ff',Sigorta:'#00aaff',Ceza:'#ff6600'};
+
+  document.getElementById('CNT').innerHTML=`
+    <div class="g4">
+      ${kpi(fmtTL(toplamMaliyet),'Toplam Maliyet','tüm zamanlar','nt','💹','#ff4455',.00)}
+      ${kpi(fmtTL(buAyTop),'Bu Ay','Mayıs 2026','dn','📅','#ffaa00',.05)}
+      ${kpi(Object.keys(aracMaliyet).length,'Araç','maliyet kaydı','nt','🚛','#4488ff',.10)}
+      ${kpi(fmtTL(toplamMaliyet/Math.max(Object.keys(aracMaliyet).length,1)),'Araç Başına','ortalama','nt','📊','#00ff88',.15)}
+    </div>
+
+    <div class="g2">
+      <!-- KATEGORİ DAĞILIMI -->
+      <div class="card">
+        <div class="ch"><div class="ct">📊 Kategori Dağılımı</div></div>
+        ${Object.entries(katMaliyet).sort((a,b)=>b[1]-a[1]).map(([kat,top])=>{
+          const yuzde=Math.round(top/toplamMaliyet*100);
+          const renk=katRenk[kat]||'var(--g)';
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+              <span style="font-weight:600">${kat}</span>
+              <span style="color:${renk};font-family:var(--mono)">${fmtTL(top)} (${yuzde}%)</span>
+            </div>
+            <div style="height:8px;background:var(--s4);border-radius:4px">
+              <div style="height:100%;width:${yuzde}%;background:${renk};border-radius:4px;transition:width .6s"></div>
+            </div>
+          </div>`;
+        }).join('')}
+
+        <div style="margin-top:16px">
+          <div class="ch"><div class="ct">🚛 Araç Bazlı Maliyet</div></div>
+          ${Object.entries(aracMaliyet).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([plaka,top])=>{
+            const yuzde=Math.round(top/toplamMaliyet*100);
+            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+              <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--g);width:90px;flex-shrink:0">${plaka}</div>
+              <div style="flex:1;height:6px;background:var(--s4);border-radius:3px">
+                <div style="height:100%;width:${yuzde}%;background:var(--r);border-radius:3px"></div>
+              </div>
+              <div style="font-size:10px;font-family:var(--mono);color:var(--t2);width:70px;text-align:right">${fmtTL(top)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- YENİ MALİYET KAYDI -->
+        <div class="card">
+          <div class="ch"><div class="ct">➕ Maliyet Kaydı Ekle</div></div>
+          <div class="fg"><label class="fl">Araç *</label>
+            <select class="fsel" id="ML-A">
+              <option value="">Seçin...</option>
+              ${ARACLAR.map(a=>`<option value="${a.plaka}">${a.plaka} — ${a.tip}</option>`).join('')}
+            </select>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Kategori *</label>
+              <select class="fsel" id="ML-K">
+                <option>Yakıt</option><option>Bakım</option><option>Tamir</option>
+                <option>Lastik</option><option>Sigorta</option><option>Ceza</option><option>Diğer</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Tutar (₺) *</label>
+              <input class="fi" id="ML-T" type="number" min="0" placeholder="0.00">
+            </div>
+          </div>
+          <div class="fg"><label class="fl">Tarih</label><input class="fi" id="ML-D" type="date" value="${today()}"></div>
+          <div class="fg"><label class="fl">Açıklama</label><input class="fi" id="ML-AC" placeholder="Maliyet açıklaması..."></div>
+          <button class="fsub" onclick="addMaliyet()">◈ KAYDET</button>
+        </div>
+
+        <!-- SON MALİYET KAYITLARI -->
+        <div class="card">
+          <div class="ch"><div class="ct">📋 Son Kayıtlar</div><div class="ca" onclick="expMaliyet()">CSV ↓</div></div>
+          <div class="tw"><table><thead><tr><th>ARAÇ</th><th>KATEGORİ</th><th>TUTAR</th><th>TARİH</th><th>İŞLEM</th></tr></thead>
+          <tbody>${MALIYET_LIST.slice().reverse().map((m,i)=>`<tr>
+            <td class="mono bold green">${m.plaka}</td>
+            <td><span class="pill" style="background:${katRenk[m.kategori]||'var(--g)'}20;color:${katRenk[m.kategori]||'var(--g)'}">${m.kategori}</span></td>
+            <td class="mono bold" style="color:var(--r)">${fmtTL(m.tutar)}</td>
+            <td class="mono muted">${fmtD(m.tarih)}</td>
+            <td><button class="ub del" onclick="maliyetX('${m.id}')">✕</button></td>
+          </tr>`).join('')}</tbody></table></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addMaliyet(){
+  const plaka=document.getElementById('ML-A')?.value;
+  const kat=document.getElementById('ML-K')?.value;
+  const tutar=parseFloat(document.getElementById('ML-T')?.value||0);
+  const tarih=document.getElementById('ML-D')?.value||today();
+  const ac=document.getElementById('ML-AC')?.value||'';
+  if(!plaka||!kat||!tutar){toast('⚠️','Araç, kategori ve tutar zorunlu!');return;}
+  const yeni={id:'m'+Date.now(),plaka,kategori:kat,tutar,tarih,aciklama:ac};
+  MALIYET_LIST.push(yeni);
+  if(window._fbReady)fbSave('maliyet',yeni.id,yeni);
+  toast('💹',`${fmtTL(tutar)} maliyet kaydedildi!`);
+  rMaliyet();
+}
+
+function maliyetX(id){
+  const i=MALIYET_LIST.findIndex(m=>m.id===id);
+  if(i>=0){
+    if(window._fbReady)fbDel('maliyet',id);
+    MALIYET_LIST.splice(i,1);
+    toast('✓','Maliyet silindi!');
+    rMaliyet();
+  }
+}
+
+function expMaliyet(){
+  const header='Plaka,Kategori,Tutar,Tarih,Aciklama';
+  const rows=MALIYET_LIST.map(m=>[m.plaka,m.kategori,m.tutar,m.tarih,m.aciklama||''].join(','));
+  dlCSV([header,...rows].join('\n'),'maliyet.csv');
+}
+
 function rAI(){
   const buAy=today().slice(0,7);
   const buAyYk=YAKITLAR.filter(y=>y.tarih?.startsWith(buAy)).reduce((s,y)=>s+(y.litre||0),0);
