@@ -696,8 +696,8 @@ async function fbLoad(){
   if(!window._db){setTimeout(fbLoad,500);return;}
   try{
     const[ar,bk,st,lt,yp,pr,op,yk,ms,iz,hk,az,per,
-          sig,eks,uy,ftr,tah,gl,sa,asat,mal,sgv,kul,
-          mus,soz,cez,kaz]=await Promise.all([
+          sig,eks,uy,ftr,tah,gl,sa,asat,mal,sgv,
+          kul,mus,soz,cez,kaz]=await Promise.all([
       fbGetAll('araclar'),fbGetAll('bakim'),fbGetAll('stok'),fbGetAll('lastik'),
       fbGetAll('yedek'),fbGetAll('projeler'),fbGetAll('operasyonlar'),fbGetAll('yakitlar'),
       fbGetAll('mesai'),fbGetAll('izin'),fbGetAll('hakedis'),fbGetAll('ariza'),
@@ -705,9 +705,9 @@ async function fbLoad(){
       fbGetAll('sigortalar'),fbGetAll('ekspertiz'),fbGetAll('ustyapi'),
       fbGetAll('faturalar'),fbGetAll('tahsilat'),fbGetAll('gelir'),
       fbGetAll('satin_alma'),fbGetAll('arac_satis'),fbGetAll('maliyet'),
-      fbGetAll('surucu_gorev'),fbGetAll('users'),
-      fbGetAll('musteriler'),fbGetAll('sozlesmeler'),fbGetAll('cezalar'),
-      fbGetAll('kazalar')
+      fbGetAll('surucu_gorev'),
+      fbGetAll('users'),fbGetAll('musteriler'),fbGetAll('sozlesmeler'),
+      fbGetAll('cezalar'),fbGetAll('kazalar')
     ]);
     // Tüm listeler Firebase'den yükle
     if(ar.length)ARACLAR.splice(0,ARACLAR.length,...ar);
