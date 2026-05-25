@@ -549,43 +549,36 @@ function applyTheme(t){
 
 function hKayit(tip){
   toggleQMenu();
-  // Önce ilgili modüle git, sonra formu aç
   const map={
-    yakit:{fn:'rYakit', formId:'YK-T', scrollId:'YK-T'},
-    bakim:{fn:'rBakim', formId:'BK-A', scrollId:'BK-A'},
-    ariza:{fn:'rAriza', formId:'AZ-P', scrollId:'AZ-P'},
-    arac:{fn:'rArac', formId:'AR-P', scrollId:'AR-P'},
-    personel:{fn:'rPersonel', formId:'PR-A', scrollId:'PR-A'},
-    lastik:{fn:'rLastik', formId:'LT-P', scrollId:'LT-P'},
-    yedek:{fn:'rYedek', formId:'YP-A', scrollId:'YP-A'},
-    ceza:{fn:'rCeza', formId:'CZ-P', scrollId:'CZ-P'},
-    kaza:{fn:'rKaza', formId:'KZ-P', scrollId:'KZ-P'},
-    musteri:{fn:'rMusteri', formId:'MS-A', scrollId:'MS-A'},
-    sozlesme:{fn:'rSozlesme', formId:'SZ-M', scrollId:'SZ-M'},
-    hakedis:{fn:'rHakedis', formId:'HK-P', scrollId:'HK-P'},
-    stok:{fn:'rDepo', formId:'ST-A', scrollId:'ST-A'},
+    yakit:'yakit', bakim:'bakim', ariza:'ariza', arac:'arac',
+    personel:'personel', lastik:'lastik', yedek:'yedek',
+    ceza:'ceza', kaza:'kaza', musteri:'musteri',
+    sozlesme:'sozlesme', hakedis:'hakedis', stok:'depo',
   };
-  const m=map[tip];
-  if(!m)return;
-  go(m.fn);
-  // Modül yüklendikten sonra form alanına scroll
+  const formMap={
+    yakit:'YK-T', bakim:'BK-A', ariza:'AZ-P', arac:'AR-P',
+    personel:'PR-A', lastik:'LT-P', yedek:'YP-A',
+    ceza:'CZ-P', kaza:'KZ-P', musteri:'MS-A',
+    sozlesme:'SZ-M', hakedis:'HK-P', stok:'ST-A',
+  };
+  const page=map[tip];
+  if(!page)return;
+  go(page);
   setTimeout(()=>{
-    const el=document.getElementById(m.formId);
+    const fid=formMap[tip];
+    if(!fid)return;
+    const el=document.getElementById(fid);
     if(el){
       el.scrollIntoView({behavior:'smooth',block:'center'});
-      el.focus();
-      // Form kartını highlight et
+      try{el.focus();}catch(e){}
       const card=el.closest('.card');
       if(card){
         card.style.border='1px solid var(--g)';
         card.style.boxShadow='0 0 20px rgba(0,255,136,.15)';
-        setTimeout(()=>{
-          card.style.border='';
-          card.style.boxShadow='';
-        },2000);
+        setTimeout(()=>{card.style.border='';card.style.boxShadow='';},2000);
       }
     }
-  },300);
+  },400);
 }
 
 function toggleQMenu(){
@@ -775,19 +768,33 @@ function go(page,el){
   else{const f=document.querySelector(`.ni[onclick*="'${page}'"]`);if(f)f.classList.add('on');}
   const pt=document.getElementById('PGT');if(pt)pt.textContent=TITLES[page]||page;
   Object.values(CH).forEach(c=>{try{c.destroy();}catch(e){}});CH={};
-  // Yetki kontrolü - admin her şeyi görür, user yetkilerine göre
   if(!isA()){
     const adminOnly=['kullanici','ayarlar'];
     if(adminOnly.includes(page)){rDenied();return;}
-    // Kullanıcı yetkilerini kontrol et
     const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
     const usr=u[CU.username];
     if(usr&&usr.yetkiler&&Object.keys(usr.yetkiler).length>0){
       if(usr.yetkiler[page]===false){rDenied();return;}
     }
   }
-  const R={panel:rPanel,harita:rHarita,musteri:rMusteri,sozlesme:rSozlesme,ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,hakedis:rHakedis,depo:rDepo,lastik:rLastik,yedek:rYedek,ai:rAI,arsiv:rArsiv,kullanici:rKul,ayarlar:rAyarlar,op_kayit:()=>openMB('OM'),yakit_g:rYakitG};
-  if(R[page])R[page]();else rCS(TITLES[page]||page);
+  const pages={
+    panel:rPanel,harita:rHarita,musteri:rMusteri,sozlesme:rSozlesme,
+    ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,
+    bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,
+    hakedis:rHakedis,depo:rDepo,lastik:rLastik,yedek:rYedek,
+    ai:rAI,arsiv:rArsiv,kullanici:rKul,ayarlar:rAyarlar,
+    op_kayit:function(){openMB('OM');},yakit_g:rYakitG
+  };
+  try{
+    if(pages[page]){
+      pages[page]();
+    } else {
+      rCS(TITLES[page]||page);
+    }
+  } catch(err){
+    console.error('go() hata:',page,err);
+    rCS(TITLES[page]||page);
+  }
 }
 
 /* ============================================================
