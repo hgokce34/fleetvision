@@ -534,12 +534,19 @@ function hKayit(tip){
     personel:'personel', lastik:'lastik', yedek:'yedek',
     ceza:'ceza', kaza:'kaza', musteri:'musteri',
     sozlesme:'sozlesme', hakedis:'hakedis', stok:'depo',
+    sigorta:'sigorta', fatura:'fatura', tahsilat:'tahsilat',
+    gelir:'gelir_gider', satin_alma:'satin_alma', arac_satis:'arac_satis',
+    ekspertiz:'ekspertiz', ustyapi:'ustyapi', surucu:'surucu',
+    maliyet:'maliyet',
   };
   const formMap={
     yakit:'YK-T', bakim:'BK-A', ariza:'AZ-P', arac:'AR-P',
     personel:'PR-A', lastik:'LT-P', yedek:'YP-A',
     ceza:'CZ-P', kaza:'KZ-P', musteri:'MS-A',
     sozlesme:'SZ-M', hakedis:'HK-P', stok:'ST-A',
+    sigorta:'SIG-P', fatura:'FTR-M', tahsilat:'TAH-M',
+    gelir:'GL-T', satin_alma:'SA-U', arac_satis:'AS-P',
+    ekspertiz:'EK-P', ustyapi:'UY-P',
   };
   const page=map[tip];
   if(!page)return;
@@ -558,7 +565,7 @@ function hKayit(tip){
         setTimeout(()=>{card.style.border='';card.style.boxShadow='';},2000);
       }
     }
-  },400);
+  },600);
 }
 
 function toggleQMenu(){
@@ -886,7 +893,7 @@ function go(page,el){
     panel:rPanel,harita:rHarita,surucu:rSurucu,maliyet:rMaliyet,musteri:rMusteri,sigorta:rSigorta,ekspertiz:rEkspertiz,ustyapi:rUstyapi,fatura:rFatura,tahsilat:rTahsilat,gelir_gider:rGelir_gider,satin_alma:rSatin_alma,arac_satis:rArac_satis,sozlesme:rSozlesme,
     ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,
     bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,
-    hakedis:rHakedis,depo:rDepo,lastik:rLastik,yedek:rYedek,
+    hakedis:rHakedis,depo:rDepo,stok:rDepo,lastik:rLastik,yedek:rYedek,
     ai:rAI,arsiv:rArsiv,kullanici:rKul,ayarlar:rAyarlar,
     op_kayit:function(){openMB('OM');},yakit_g:rYakitG
   };
