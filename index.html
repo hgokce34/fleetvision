@@ -411,124 +411,34 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
 /* ============================================================
    VERİ YAPILARI
 ============================================================ */
-let ARACLAR=[
-  {id:'a1',plaka:'34 ABC 001',tip:'Kamyon',marka:'Mercedes',model:'Actros',yil:2020,durum:'Aktif',saat:12400,bolge:'İstanbul',bkm:45},
-  {id:'a2',plaka:'34 DEF 002',tip:'Forklift',marka:'Toyota',model:'8FBN25',yil:2019,durum:'Aktif',saat:8200,bolge:'Ankara',bkm:72},
-  {id:'a3',plaka:'34 GHI 003',tip:'Reach Stacker',marka:'Kalmar',model:'DRG450',yil:2021,durum:'Bakımda',saat:6100,bolge:'İzmir',bkm:88},
-  {id:'a4',plaka:'34 JKL 004',tip:'Loder',marka:'Volvo',model:'L90H',yil:2018,durum:'Aktif',saat:15600,bolge:'Bursa',bkm:30},
-  {id:'a5',plaka:'34 MNO 005',tip:'Dozer',marka:'Caterpillar',model:'D6T',yil:2022,durum:'Aktif',saat:4800,bolge:'İstanbul',bkm:20},
-  {id:'a6',plaka:'34 PRS 006',tip:'JCB',marka:'JCB',model:'3CX',yil:2020,durum:'Arızalı',saat:9300,bolge:'Ankara',bkm:91},
-  {id:'a7',plaka:'34 TUV 007',tip:'Binek Araç',marka:'Ford',model:'Transit',yil:2023,durum:'Aktif',saat:28000,bolge:'İzmir',bkm:55},
-  {id:'a8',plaka:'34 YZA 008',tip:'Ekskavatör',marka:'Komatsu',model:'PC360',yil:2021,durum:'Aktif',saat:7200,bolge:'Bursa',bkm:40},
-];
-let PERSONEL=[
-  {id:'p1',ad:'Ahmet Yılmaz',gorev:'Operatör',tel:'0532 111 1111',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2020-01-15',surucu:true,ehliyet:'B,C,D',atanan_arac:'34 ABC 001',toplam_km:45200,ihlal:1,puan:87},
-  {id:'p2',ad:'Mehmet Kaya',gorev:'Operatör',tel:'0533 222 2222',vardiya:'Gece',durum:'Aktif',ise_giris:'2019-06-01',surucu:true,ehliyet:'B,C',atanan_arac:'34 DEF 002',toplam_km:38400,ihlal:0,puan:95},
-  {id:'p3',ad:'Ali Demir',gorev:'Bakım Teknisyeni',tel:'0534 333 3333',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2021-03-10',surucu:false,ehliyet:'B',atanan_arac:'',toplam_km:0,ihlal:0,puan:100},
-  {id:'p4',ad:'Hasan Türk',gorev:'Saha Şefi',tel:'0535 444 4444',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2018-09-01',surucu:true,ehliyet:'B,C,D,E',atanan_arac:'34 GHI 003',toplam_km:92100,ihlal:2,puan:78},
-  {id:'p5',ad:'Murat Şahin',gorev:'Operatör',tel:'0536 555 5555',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2022-02-15',surucu:true,ehliyet:'B,C',atanan_arac:'34 JKL 004',toplam_km:28500,ihlal:0,puan:92},
-  {id:'p6',ad:'Serkan Çelik',gorev:'Operatör',tel:'0537 666 6666',vardiya:'Gece',durum:'Aktif',ise_giris:'2021-07-01',surucu:true,ehliyet:'B',atanan_arac:'',toplam_km:15200,ihlal:1,puan:83},
-  {id:'p7',ad:'Fatma Arslan',gorev:'İdari Personel',tel:'0538 777 7777',vardiya:'Gündüz',durum:'Aktif',ise_giris:'2023-01-10',surucu:false,ehliyet:'B',atanan_arac:'',toplam_km:0,ihlal:0,puan:100},
-  {id:'p8',ad:'Kemal Yıldız',gorev:'Operatör',tel:'0539 888 8888',vardiya:'Gece',durum:'İzinli',ise_giris:'2020-08-15',surucu:true,ehliyet:'B,C',atanan_arac:'',toplam_km:52300,ihlal:3,puan:71},
-];
-let SIGORTA_LIST=[
-  {id:'sig1',plaka:'34 ABC 001',tip:'Kasko',sirket:'Allianz',police_no:'ALZ-2024-001',baslangic:'2024-01-01',bitis:'2025-01-01',prim:8500,durum:'Aktif'},
-  {id:'sig2',plaka:'34 DEF 002',tip:'Trafik',sirket:'Axa',police_no:'AXA-2024-002',baslangic:'2024-03-01',bitis:'2025-03-01',prim:3200,durum:'Aktif'},
-  {id:'sig3',plaka:'34 GHI 003',tip:'Kasko',sirket:'Generali',police_no:'GEN-2024-003',baslangic:'2024-06-01',bitis:'2025-06-01',prim:12000,durum:'Aktif'},
-];
-let EKSPERTIZ_LIST=[
-  {id:'eks1',plaka:'34 ABC 001',tarih:'2026-01-15',uzman:'Ahmet Ekspert',durum:'Hasar Yok',bedel:450000,notlar:'Genel durum iyi'},
-  {id:'eks2',plaka:'34 GHI 003',tarih:'2026-02-20',uzman:'Mehmet Uzman',durum:'Minör Hasar',bedel:320000,notlar:'Sol kapı çizik'},
-];
-let USTYAPI_LIST=[
-  {id:'uy1',plaka:'34 ABC 001',tip:'Damper',marka:'Özgür',yil:2020,kapasite:'15 ton',durum:'Aktif',tarih:'2020-03-01'},
-  {id:'uy2',plaka:'34 GHI 003',tip:'Kasa',marka:'Kıraç',yil:2019,kapasite:'20 m3',durum:'Aktif',tarih:'2019-06-15'},
-];
-let FATURA_LIST=[
-  {id:'ftr1',no:'FTR-2026-001',musteri:'ABC Lojistik',tutar:45000,kdv:8100,toplam:53100,tarih:'2026-05-01',vade:'2026-06-01',durum:'Ödendi'},
-  {id:'ftr2',no:'FTR-2026-002',musteri:'XYZ Taşımacılık',tutar:28000,kdv:5040,toplam:33040,tarih:'2026-05-10',vade:'2026-06-10',durum:'Bekliyor'},
-  {id:'ftr3',no:'FTR-2026-003',musteri:'Kaya İnşaat',tutar:62000,kdv:11160,toplam:73160,tarih:'2026-05-15',vade:'2026-06-15',durum:'Gecikmiş'},
-];
-let TAHSILAT_LIST=[
-  {id:'tah1',fatura_no:'FTR-2026-001',musteri:'ABC Lojistik',tutar:53100,tarih:'2026-05-20',yontem:'Havale',durum:'Tahsil Edildi'},
-  {id:'tah2',fatura_no:'FTR-2026-002',musteri:'XYZ Taşımacılık',tutar:33040,tarih:'',yontem:'',durum:'Bekliyor'},
-];
-let GELIR_LIST=[
-  {id:'gl1',kategori:'Kiralama',tutar:45000,tarih:'2026-05-01',aciklama:'Aylık filo kiralama'},
-  {id:'gl2',kategori:'Taşımacılık',tutar:28000,tarih:'2026-05-10',aciklama:'Sevkiyat geliri'},
-];
-let SATIN_ALMA_LIST=[
-  {id:'sa1',urun:'Dizel Yakıt',tedarikci:'BP Türkiye',miktar:5000,birim:'Litre',tutar:185000,tarih:'2026-05-01',durum:'Teslim Edildi'},
-  {id:'sa2',urun:'Motor Yağı',tedarikci:'Shell',miktar:200,birim:'Litre',tutar:28000,tarih:'2026-05-10',durum:'Bekliyor'},
-];
-let ARAC_SATIS_LIST=[
-  {id:'as1',plaka:'34 OLD 001',alici:'Kemal Yılmaz',satis_fiyat:280000,tarih:'2026-04-15',durum:'Tamamlandı',notlar:''},
-];
-let SURUCU_GOREV=[ 
-  {id:'sg1',surucu_id:'p1',surucu:'Ahmet Yılmaz',plaka:'34 ABC 001',baslangic:'2026-05-01',bitis:'',mesafe:1240,yakit:180,durum:'Aktif',not:''},
-  {id:'sg2',surucu_id:'p2',surucu:'Mehmet Kaya',plaka:'34 DEF 002',baslangic:'2026-05-03',bitis:'2026-05-10',mesafe:860,yakit:120,durum:'Tamamlandı',not:''},
-  {id:'sg3',surucu_id:'p4',surucu:'Hasan Türk',plaka:'34 GHI 003',baslangic:'2026-05-15',bitis:'',mesafe:2100,yakit:310,durum:'Aktif',not:'Uzun mesafe'},
-];
-let MALIYET_LIST=[
-  {id:'m1',plaka:'34 ABC 001',kategori:'Yakıt',tutar:8500,tarih:'2026-05-01',aciklama:'Aylık yakıt'},
-  {id:'m2',plaka:'34 ABC 001',kategori:'Bakım',tutar:3200,tarih:'2026-04-15',aciklama:'Periyodik bakım'},
-  {id:'m3',plaka:'34 DEF 002',kategori:'Tamir',tutar:12000,tarih:'2026-05-10',aciklama:'Motor tamiri'},
-  {id:'m4',plaka:'34 GHI 003',kategori:'Yakıt',tutar:15200,tarih:'2026-05-01',aciklama:'Aylık yakıt'},
-  {id:'m5',plaka:'34 GHI 003',kategori:'Lastik',tutar:8800,tarih:'2026-04-20',aciklama:'4 adet lastik'},
-  {id:'m6',plaka:'34 JKL 004',kategori:'Sigorta',tutar:6500,tarih:'2026-05-01',aciklama:'Kasko ödemesi'},
-  {id:'m7',plaka:'34 DEF 002',kategori:'Yakıt',tutar:6200,tarih:'2026-05-15',aciklama:'Yakıt alımı'},
-  {id:'m8',plaka:'34 ABC 001',kategori:'Ceza',tutar:450,tarih:'2026-05-18',aciklama:'Hız ihlali'},
-];
+let ARACLAR=[];
+let PERSONEL=[];
+let SIGORTA_LIST=[];
+let EKSPERTIZ_LIST=[];
+let USTYAPI_LIST=[];
+let FATURA_LIST=[];
+let TAHSILAT_LIST=[];
+let GELIR_LIST=[];
+let SATIN_ALMA_LIST=[];
+let ARAC_SATIS_LIST=[];
+let SURUCU_GOREV=[];
+let MALIYET_LIST=[];
 let YAKITLAR=[];
 let OPERASYONLAR=[];
-let ARIZA_LIST=[
-  {id:'az1',plaka:'34 GHI 003',tip:'Hidrolik Kaçak',oncelik:'Yüksek',durum:'Açık',aciklama:'Sol kol silindirinde basınç kaybı',tarih:'2026-05-20',atanan:'Ali Demir',maliyet:0},
-  {id:'az2',plaka:'34 PRS 006',tip:'Motor Arızası',oncelik:'Kritik',durum:'Açık',aciklama:'Düşük devirde titreşim ve anormal ses',tarih:'2026-05-21',atanan:'Kemal Arslan',maliyet:0},
-];
-let BAKIM_LIST=[
-  {id:'bk1',plaka:'34 GHI 003',tip:'Yağ Değişimi',periyot:500,kalan:60,son:'2026-04-14',maliyet:1200},
-  {id:'bk2',plaka:'34 JKL 004',tip:'Motor Bakımı',periyot:500,kalan:45,son:'2026-04-18',maliyet:2800},
-  {id:'bk3',plaka:'34 ABC 001',tip:'Genel Bakım',periyot:1000,kalan:320,son:'2026-03-01',maliyet:800},
-  {id:'bk4',plaka:'34 DEF 002',tip:'Filtre Değişimi',periyot:500,kalan:180,son:'2026-03-15',maliyet:450},
-];
-let STOK=[
-  {id:'st1',kod:'HYD-001',ad:'Hidrolik Yağ 46',kat:'Yağ',miktar:4,esik:5,fiyat:320,raf:'A1-01'},
-  {id:'st2',kod:'FLT-A12',ad:'Hava Filtresi',kat:'Filtre',miktar:2,esik:4,fiyat:180,raf:'B2-03'},
-  {id:'st3',kod:'YAG-MO5',ad:'Motor Yağı 5W-40',kat:'Yağ',miktar:12,esik:6,fiyat:180,raf:'A1-03'},
-  {id:'st4',kod:'AKU-24',ad:'Akü 12V/100Ah',kat:'Elektrik',miktar:3,esik:2,fiyat:1650,raf:'E5-02'},
-];
-let LASTIK_LIST=[
-  {id:'lt1',plaka:'34 ABC 001',marka:'Michelin',ebat:'315/80R22.5',cinsi:'Kamyon',seri:'MIC-2024-001',adet:6,durum:'Takılı',km:45000,tarih:'2024-03-15'},
-  {id:'lt2',plaka:'34 DEF 002',marka:'Bridgestone',ebat:'23x9-10',cinsi:'Forklift',seri:'BST-2023-002',adet:4,durum:'Takılı',km:12000,tarih:'2023-08-20'},
-];
-let YEDEK_LIST=[
-  {id:'yp1',kod:'ENG-001',ad:'Piston Seti',arac_tipi:'Kamyon',marka:'Mercedes',stok:2,esik:1,fiyat:8500,raf:'D1-01'},
-  {id:'yp2',kod:'HYD-002',ad:'Hidrolik Pompa',arac_tipi:'İş Makinesi',marka:'Rexroth',stok:1,esik:1,fiyat:15000,raf:'D2-03'},
-];
-let PROJE_LIST=[
-  {id:'pr1',ad:'Liman Operasyonu',bolge:'İstanbul',baslangic:'2026-01-01',bitis:'2026-12-31',durum:'Aktif'},
-  {id:'pr2',ad:'İnşaat Sahası',bolge:'Ankara',baslangic:'2026-03-01',bitis:'2026-09-30',durum:'Aktif'},
-];
+let ARIZA_LIST=[];
+let BAKIM_LIST=[];
+let STOK=[];
+let LASTIK_LIST=[];
+let YEDEK_LIST=[];
+let PROJE_LIST=[];
 let HAKEDIS_LIST=[];
 let MESAI_LIST=[];
 let IZIN_LIST=[];
 
-let MUSTERI_LIST=[
-  {id:'m1',ad:'Limak Liman A.Ş.',yetkili:'Ahmet Bey',tel:'0212 555 1111',email:'ahmet@limak.com',adres:'İstanbul Liman',sektor:'Liman',aktif:true,sozlesme_sayisi:2},
-  {id:'m2',ad:'Rönesans İnşaat',yetkili:'Mehmet Bey',tel:'0312 555 2222',email:'mehmet@ronesans.com',adres:'Ankara',sektor:'İnşaat',aktif:true,sozlesme_sayisi:1},
-  {id:'m3',ad:'Bosch Sanayi',yetkili:'Kemal Bey',tel:'0232 555 3333',email:'kemal@bosch.com.tr',adres:'İzmir OSB',sektor:'Sanayi',aktif:true,sozlesme_sayisi:1},
-];
-let SOZLESME_LIST=[
-  {id:'s1',no:'SZ-2026-001',musteri_id:'m1',tip:'Uzun Dönem Kiralama',baslangic:'2026-01-01',bitis:'2026-12-31',tutar:850000,durum:'Aktif',odeme:'Aylık'},
-  {id:'s2',no:'SZ-2026-002',musteri_id:'m2',tip:'Kısa Dönem Kiralama',baslangic:'2026-03-01',bitis:'2026-09-30',tutar:420000,durum:'Aktif',odeme:'Aylık'},
-];
-let CEZA_LIST=[
-  {id:'cz1',plaka:'34 ABC 001',tip:'Hız İhlali',tarih:'2026-05-10',tutar:892,durum:'Ödendi',sure:'42 km/s',personel:'Ahmet Yılmaz'},
-  {id:'cz2',plaka:'34 TUV 007',tip:'Park Cezası',tarih:'2026-05-15',tutar:457,durum:'Bekliyor',sure:'Yasak bölge',personel:'Murat Şahin'},
-];
-let KAZA_LIST=[
-  {id:'kz1',plaka:'34 JKL 004',tarih:'2026-04-22',tip:'Maddi Hasar',aciklama:'Araç arka tampon hasarı',hasar:15000,sigorta_dosya:'SGR-2026-041',durum:'Süreçte',personel:'Mehmet Kaya'},
-];
+let MUSTERI_LIST=[];
+let SOZLESME_LIST=[];
+let CEZA_LIST=[];
+let KAZA_LIST=[];
 let BILDIRIMLER=[
   {id:'b1',tip:'warn',baslik:'Muayene Yaklaşıyor',mesaj:'34 JKL 004 — 30 gün içinde dolacak',tarih:new Date().toISOString(),okundu:false},
   {id:'b2',tip:'crit',baslik:'Kritik Arıza',mesaj:'34 PRS 006 — Motor arızası bildirildi',tarih:new Date().toISOString(),okundu:false},
@@ -731,19 +641,19 @@ async function fbLoad(){
       }
     }
     // Temel veriler
-    if(ar.length)ARACLAR=ar;
-    if(bk.length)BAKIM_LIST=bk;
-    if(st.length)STOK=st;
-    if(lt.length)LASTIK_LIST=lt;
-    if(yp.length)YEDEK_LIST=yp;
-    if(pr.length)PROJE_LIST=pr;
-    if(op.length)OPERASYONLAR=op;
-    if(yk.length)YAKITLAR=yk;
-    if(ms.length)MESAI_LIST=ms;
-    if(iz.length)IZIN_LIST=iz;
-    if(hk.length)HAKEDIS_LIST=hk;
-    if(az.length)ARIZA_LIST=az;
-    if(per.length)PERSONEL.splice(0,PERSONEL.length,...per);
+    if(ar.length){ARACLAR.splice(0,ARACLAR.length,...ar);}
+    if(bk.length){BAKIM_LIST.splice(0,BAKIM_LIST.length,...bk);}
+    if(st.length){STOK.splice(0,STOK.length,...st);}
+    if(lt.length){LASTIK_LIST.splice(0,LASTIK_LIST.length,...lt);}
+    if(yp.length){YEDEK_LIST.splice(0,YEDEK_LIST.length,...yp);}
+    if(pr.length){PROJE_LIST.splice(0,PROJE_LIST.length,...pr);}
+    if(op.length){OPERASYONLAR.splice(0,OPERASYONLAR.length,...op);}
+    if(yk.length){YAKITLAR.splice(0,YAKITLAR.length,...yk);}
+    if(ms.length){MESAI_LIST.splice(0,MESAI_LIST.length,...ms);}
+    if(iz.length){IZIN_LIST.splice(0,IZIN_LIST.length,...iz);}
+    if(hk.length){HAKEDIS_LIST.splice(0,HAKEDIS_LIST.length,...hk);}
+    if(az.length){ARIZA_LIST.splice(0,ARIZA_LIST.length,...az);}
+    if(per.length){PERSONEL.splice(0,PERSONEL.length,...per);}
     // Yeni modüller
     if(sig.length)SIGORTA_LIST.splice(0,SIGORTA_LIST.length,...sig);
     if(eks.length)EKSPERTIZ_LIST.splice(0,EKSPERTIZ_LIST.length,...eks);
@@ -762,6 +672,27 @@ async function fbLoad(){
     // Kullanıcılar
     if(kul.length){const u=JSON.parse(localStorage.getItem('fv_users')||'{}');kul.forEach(x=>{if(x.id)u[x.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev,yetkiler:x.yetkiler||{}};});localStorage.setItem('fv_users',JSON.stringify(u));}
         console.log('✅ Firebase yüklendi');
+    // Aktif sayfayı yenile - Firebase verileri geldi
+    window._fbReady=true;
+    const pt=document.getElementById('PGT');
+    if(pt&&pt.textContent){
+      const pages={
+        'Ana Panel':'panel','Araç Yönetimi':'arac','Yakıt Yönetimi':'yakit',
+        'Bakım Takip':'bakim','Arıza Merkezi':'ariza','Personel':'personel',
+        'Mesai & İzin':'mesai','Hakediş & Proje':'hakedis','Depo Yönetimi':'depo',
+        'Lastik Yönetimi':'lastik','Yedek Parça':'yedek','AI Analitik':'ai',
+        'Raporlar':'raporlar','Arşiv':'arsiv','Sürücü Takibi':'surucu',
+        'Maliyet Analizi':'maliyet','Sigorta & Poliçe':'sigorta',
+        'Araç Ekspertiz':'ekspertiz','Üst Yapı Takibi':'ustyapi',
+        'Faturalar':'fatura','Tahsilat Yönetimi':'tahsilat',
+        'Gelir / Gider':'gelir_gider','Satın Alma':'satin_alma',
+        'Araç Satış':'arac_satis','Müşteri & Firma':'musteri',
+        'Sözleşmeler':'sozlesme','Ceza Yönetimi':'ceza','Kaza & Hasar':'kaza',
+        'Canlı Harita':'harita'
+      };
+      const pageId=pages[pt.textContent];
+      if(pageId)go(pageId);
+    }
   }catch(e){console.warn('FB yükleme:',e);}
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
