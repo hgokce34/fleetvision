@@ -2038,16 +2038,8 @@ function msTab(el,id){
   if(id==='MS5'){
     const tc5=document.getElementById('MS5');
     if(tc5){
-      tc5.innerHTML=`<div class="card">
-        <div class="ch">
-          <div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div>
-          <div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div>
-        </div>
-        <div class="tw"><table>
-          <thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead>
-          <tbody>${izinHaklariHesapla()}</tbody>
-        </table></div>
-      </div>`;
+      const rows=izinHaklariHesapla();
+      tc5.innerHTML='<div class="card"><div class="ch"><div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div><div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div></div><div class="tw"><table><thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
     }
   }
 }
@@ -3726,6 +3718,107 @@ function tumBildirimOku(){
 
 /* BAŞLAT */
 checkSession();
+
+// Login arka plan animasyonu
+(function(){
+  const canvas=document.getElementById('LOGIN-BG');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W=canvas.width=window.innerWidth;
+  let H=canvas.height=window.innerHeight;
+  window.addEventListener('resize',()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;});
+
+  // Araçlar
+  const trucks=Array.from({length:8},(_,i)=>({
+    x:Math.random()*W,
+    y:H*0.3+Math.random()*H*0.5,
+    speed:0.3+Math.random()*0.5,
+    size:18+Math.random()*14,
+    lane:i%3,
+    opacity:0.04+Math.random()*0.06
+  }));
+
+  // Yol çizgileri
+  const roads=[0.35,0.55,0.75].map(y=>({y:H*y,speed:0.8}));
+
+  // Partiküller
+  const particles=Array.from({length:60},()=>({
+    x:Math.random()*W,
+    y:Math.random()*H,
+    r:1+Math.random()*2,
+    speed:0.2+Math.random()*0.4,
+    opacity:0.03+Math.random()*0.07
+  }));
+
+  function drawTruck(x,y,size,opacity){
+    ctx.save();
+    ctx.globalAlpha=opacity;
+    ctx.strokeStyle='#00ff88';
+    ctx.lineWidth=1.5;
+    ctx.shadowColor='#00ff88';
+    ctx.shadowBlur=8;
+    // Kamyon gövdesi
+    ctx.strokeRect(x,y-size*0.4,size*1.4,size*0.5);
+    // Kabin
+    ctx.strokeRect(x+size*1.1,y-size*0.55,size*0.4,size*0.65);
+    // Tekerlekler
+    ctx.beginPath();ctx.arc(x+size*0.3,y+size*0.15,size*0.15,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(x+size*1.1,y+size*0.15,size*0.15,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
+
+  function animate(){
+    ctx.clearRect(0,0,W,H);
+
+    // Gradient arka plan
+    const grad=ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0,'rgba(6,10,20,0.98)');
+    grad.addColorStop(1,'rgba(10,18,32,0.98)');
+    ctx.fillStyle=grad;
+    ctx.fillRect(0,0,W,H);
+
+    // Yol çizgileri
+    roads.forEach(r=>{
+      ctx.save();
+      ctx.globalAlpha=0.06;
+      ctx.strokeStyle='#4488ff';
+      ctx.lineWidth=1;
+      ctx.setLineDash([30,20]);
+      ctx.beginPath();ctx.moveTo(0,r.y);ctx.lineTo(W,r.y);ctx.stroke();
+      ctx.restore();
+    });
+
+    // Partiküller
+    particles.forEach(p=>{
+      ctx.save();
+      ctx.globalAlpha=p.opacity;
+      ctx.fillStyle='#00ff88';
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      p.x-=p.speed;
+      if(p.x<-5)p.x=W+5;
+    });
+
+    // Grid çizgileri
+    ctx.save();
+    ctx.globalAlpha=0.025;
+    ctx.strokeStyle='#4488ff';
+    ctx.lineWidth=0.5;
+    for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    ctx.restore();
+
+    // Kamyonlar
+    trucks.forEach(t=>{
+      drawTruck(t.x,t.y,t.size,t.opacity);
+      t.x-=t.speed;
+      if(t.x<-t.size*2)t.x=W+t.size*2;
+    });
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
 </script>
 
 <div class="notif-dropdown" id="NDROP">
