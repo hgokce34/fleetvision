@@ -1972,26 +1972,7 @@ function rMesai(){
           <div class="cw" style="--ch:200px"><canvas id="MS-PIE"></canvas></div>
         </div>
       </div>
-    <div class="tab-c" id="MS5">
-      <div class="card">
-        <div class="ch">
-          <div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div>
-          <div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div>
-        </div>
-        <div class="tw"><table>
-          <thead><tr>
-            <th>PERSONEL</th>
-            <th>İŞE GİRİŞ</th>
-            <th>KIDEM</th>
-            <th>YASAL HAKK</th>
-            <th>KULLANILAN</th>
-            <th>KALAN</th>
-            <th>DURUM</th>
-          </tr></thead>
-          <tbody id="IZIN-HAKKI-TBODY"><tr><td colspan="7" style="text-align:center;color:var(--t3);padding:20px">Yükleniyor...</td></tr></tbody>
-        </table></div>
-      </div>
-    </div>
+    <div class="tab-c" id="MS5"></div>
     </div>`;
   const vT=['Gündüz','Gece','Dönüşümlü','Esnek'];
   CH.msPie=mkDonut('MS-PIE',vT,vT.map(v=>PERSONEL.filter(p=>p.vardiya===v).length));
@@ -2046,22 +2027,28 @@ function izinHaklariHesapla(){
 }
 
 function msTab(el,id){
-  // Sadece bu sekme grubundaki butonları sıfırla
-  const tabBar=el.closest('.tab-bar')||el.parentElement;
-  tabBar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
-  // Sadece CNT içindeki tab-c'leri sıfırla
   const cnt=document.getElementById('CNT');
-  if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));
+  if(cnt){
+    cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+    cnt.querySelectorAll('.tab-c').forEach(t=>{t.classList.remove('on');t.style.display='none';});
+  }
   el.classList.add('on');
   const tc=document.getElementById(id);
-  if(tc){
-    tc.classList.add('on');
-    tc.style.display='block';
-  }
-  // İzin hakları sekmesi açılınca tabloyu güncelle
+  if(tc){tc.classList.add('on');tc.style.display='block';}
   if(id==='MS5'){
-    const tbody=document.getElementById('IZIN-HAKKI-TBODY')||tc?.querySelector('tbody');
-    if(tbody)tbody.innerHTML=izinHaklariHesapla();
+    const tc5=document.getElementById('MS5');
+    if(tc5){
+      tc5.innerHTML=`<div class="card">
+        <div class="ch">
+          <div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div>
+          <div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead>
+          <tbody>${izinHaklariHesapla()}</tbody>
+        </table></div>
+      </div>`;
+    }
   }
 }
 function msSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Mesai kaydı yok</td></tr>`;
