@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   const cfg = {
     apiKey:"AIzaSyD4u36sxAr9pHid2V-h9_ngWR8SMDbvd1Q",
     authDomain:"fleetvision-20c34.firebaseapp.com",
@@ -19,7 +19,7 @@
   const app = initializeApp(cfg);
   const db  = getFirestore(app);
   window._db = db;
-  window._fs = { collection, doc, setDoc, getDocs, deleteDoc };
+  window._fs = { collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query };
   window._fbReady = true;
   window.dispatchEvent(new Event("fbReady"));
 </script>
@@ -646,9 +646,106 @@ async function fbLoad(){
     if(kaz.length)KAZA_LIST.splice(0,KAZA_LIST.length,...kaz);
     if(kul.length){const u=JSON.parse(localStorage.getItem('fv_users')||'{}');kul.forEach(x=>{if(x.id)u[x.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev,yetkiler:x.yetkiler||{}};});localStorage.setItem('fv_users',JSON.stringify(u));}
     console.log('✅ Firebase yüklendi');
+    // Realtime listeners - değişiklikler otomatik yansısın
+    startRealtimeListeners();
   }catch(e){console.warn('FB yükleme:',e);}
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+
+// ============================================================
+// REALTİME LİSTENERS - Firebase değişikliklerini otomatik yakala
+// ============================================================
+let _listeners=[];
+function startRealtimeListeners(){
+  if(!window._db||!window._fs.onSnapshot)return;
+  // Tüm dinleyicileri temizle
+  _listeners.forEach(u=>u());_listeners=[];
+  const listen=(col,arr,cb)=>{
+    try{
+      const u=window._fs.onSnapshot(
+        window._fs.collection(window._db,col),
+        snap=>{
+          const data=snap.docs.map(d=>({...d.data(),id:d.id}));
+          if(data.length){arr.splice(0,arr.length,...data);}
+          if(cb)cb();
+        },
+        err=>console.warn('Listener hata:',col,err)
+      );
+      _listeners.push(u);
+    }catch(e){console.warn('Listen err:',col,e);}
+  };
+  listen('araclar',ARACLAR);
+  listen('personel',PERSONEL);
+  listen('ariza',ARIZA_LIST);
+  listen('bakim',BAKIM_LIST);
+  listen('yakitlar',YAKITLAR);
+  listen('stok',STOK);
+  listen('lastik',LASTIK_LIST);
+  listen('yedek',YEDEK_LIST);
+  listen('operasyonlar',OPERASYONLAR);
+  listen('mesai',MESAI_LIST);
+  listen('izin',IZIN_LIST);
+  listen('hakedis',HAKEDIS_LIST);
+  listen('projeler',PROJE_LIST);
+  listen('sigortalar',SIGORTA_LIST);
+  listen('ekspertiz',EKSPERTIZ_LIST);
+  listen('ustyapi',USTYAPI_LIST);
+  listen('faturalar',FATURA_LIST);
+  listen('tahsilat',TAHSILAT_LIST);
+  listen('gelir',GELIR_LIST);
+  listen('satin_alma',SATIN_ALMA_LIST);
+  listen('arac_satis',ARAC_SATIS_LIST);
+  listen('maliyet',MALIYET_LIST);
+  listen('surucu_gorev',SURUCU_GOREV);
+  listen('musteriler',MUSTERI_LIST);
+  listen('sozlesmeler',SOZLESME_LIST);
+  listen('cezalar',CEZA_LIST);
+  listen('kazalar',KAZA_LIST);
+  // Kullanıcıların yaptığı değişiklikleri realtime izle
+  try{
+    const uRef=window._fs.collection(window._db,'users');
+    const uUnsub=window._fs.onSnapshot(uRef,snap=>{
+      const u=JSON.parse(localStorage.getItem('fv_users')||'{}');
+      snap.docs.forEach(d=>{const x=d.data();if(x.id||d.id)u[d.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev,yetkiler:x.yetkiler||{}};});
+      localStorage.setItem('fv_users',JSON.stringify(u));
+    },err=>console.warn('users listener:',err));
+    _listeners.push(uUnsub);
+  }catch(e){}
+  console.log('✅ Realtime listeners aktif');
+}
+
+// ============================================================
+// INLINE EDİTİNG - Tabloda direkt düzenleme
+// ============================================================
+function inlineEdit(el,id,col,field){
+  const old=el.textContent;
+  el.contentEditable=true;
+  el.style.background='rgba(0,255,136,.1)';
+  el.style.outline='1px solid var(--g)';
+  el.style.borderRadius='4px';
+  el.style.padding='2px 6px';
+  el.focus();
+  const save=()=>{
+    el.contentEditable=false;
+    el.style.background='';
+    el.style.outline='';
+    const val=el.textContent.trim();
+    if(val===old)return;
+    // Araç listesinde güncelle
+    const item=ARACLAR.find(a=>a.id===id)||
+               PERSONEL.find(p=>p.id===id)||
+               ARIZA_LIST.find(a=>a.id===id);
+    if(item){
+      item[field]=isNaN(val)?val:parseFloat(val);
+      fbSave(col,id,item);
+      toast('✓',`${field} güncellendi!`);
+    }
+  };
+  el.onblur=save;
+  el.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();save();}if(e.key==='Escape'){el.textContent=old;el.contentEditable=false;}};
+}
+
+
 
 /* ============================================================
    GİRİŞ / ÇIKIŞ
@@ -1303,12 +1400,12 @@ function aracTabloRender(){
     const durumRenk=v.durum==='Aktif'?'var(--g)':v.durum==='Bakımda'?'var(--a)':'var(--r)';
     let row=`<tr style="background:${secili?'rgba(0,255,136,.05)':''};" oncontextmenu="aracSagTik(event,'${v.id}')" data-id="${v.id}">`;
     row+=`<td><input type="checkbox" ${secili?'checked':''} onchange="aracSecToggle('${v.id}',this)" style="accent-color:var(--g)"></td>`;
-    if(su.plaka)row+=`<td class="mono bold green" style="cursor:pointer" onclick="aracDetayGoster('${v.id}')">${v.plaka}</td>`;
+    if(su.plaka)row+=`<td class="mono bold green" style="cursor:pointer" onclick="aracDetayGoster('${v.id}')" title="Detay için tıkla">${v.plaka}</td>`;
     if(su.tip)row+=`<td>${v.tip}</td>`;
     if(su.marka)row+=`<td class="muted">${v.marka||'—'} ${v.model||''}</td>`;
     if(su.yil)row+=`<td class="mono muted">${v.yil||'—'}</td>`;
-    if(su.km)row+=`<td class="mono">${fmtN(v.km||0)}</td>`;
-    if(su.saat)row+=`<td class="mono">${fmtN(v.saat||0)}</td>`;
+    if(su.km)row+=`<td class="mono" style="cursor:pointer" onclick="inlineEdit(this,'${v.id}','araclar','km')" title="Tıkla → KM güncelle">${fmtN(v.km||0)}</td>`;
+    if(su.saat)row+=`<td class="mono" style="cursor:pointer" onclick="inlineEdit(this,'${v.id}','araclar','saat')" title="Tıkla → Saat güncelle">${fmtN(v.saat||0)}</td>`;
     if(su.durum)row+=`<td><span class="pill" style="background:${durumRenk}20;color:${durumRenk}">${v.durum||'?'}</span></td>`;
     if(su.bolge)row+=`<td class="muted">${v.bolge||'—'}</td>`;
     if(su.yakit)row+=`<td class="muted">${v.yakit_tip||'—'}</td>`;
@@ -1590,7 +1687,7 @@ function rBakim(){
       </div>
     </div>`;
 }
-function addBakim(){const b={id:uid(),plaka:document.getElementById('BK-A').value,tip:document.getElementById('BK-T').value,periyot:parseInt(document.getElementById('BK-P').value)||500,kalan:parseInt(document.getElementById('BK-K').value)||500,son:document.getElementById('BK-S').value||today(),maliyet:parseFloat(document.getElementById('BK-M').value)||0};BAKIM_LIST.push(b);fbSave('bakim',b.id,b);toast('◈',`${b.plaka} — ${b.tip} eklendi!`);rBakim();}
+function addBakim(){const b={id:uid(),plaka:document.getElementById('BK-A').value,tip:document.getElementById('BK-T').value,periyot:parseInt(document.getElementById('BK-P').value)||500,kalan:parseInt(document.getElementById('BK-K').value)||500,son:document.getElementById('BK-S').value||today(),maliyet:parseFloat(document.getElementById('BK-M').value)||0,notlar:document.getElementById('BK-NOT')?.value||''};BAKIM_LIST.push(b);fbSave('bakim',b.id,b);toast('◈',`${b.plaka} — ${b.tip} eklendi!`);rBakim();}
 function bkmTam(i){if(!confirm(`${BAKIM_LIST[i].plaka} — ${BAKIM_LIST[i].tip} tamamlandı mı?`))return;BAKIM_LIST[i].kalan=BAKIM_LIST[i].periyot;BAKIM_LIST[i].son=today();fbSave('bakim',BAKIM_LIST[i].id,BAKIM_LIST[i]);toast('✓','Bakım tamamlandı!');rBakim();}
 function bkmX(id){if(!confirm('Silinecek?'))return;const i=BAKIM_LIST.findIndex(b=>b.id===id);if(i>=0){fbDel('bakim',id);BAKIM_LIST.splice(i,1);}toast('◈','Silindi!');rBakim();}
 
@@ -3003,7 +3100,7 @@ function rAyarlar(){
         </div>
         <div class="card"><div class="ch"><div class="ct">Veri Yönetimi</div></div>
           <div style="display:flex;flex-direction:column;gap:7px">
-            <button class="btn" style="text-align:left;padding:8px 12px" onclick="fbSync()">☁ Firebase'e Senkronize Et</button>
+            <button class="btn" style="text-align:left;padding:8px 12px;background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:var(--g);font-weight:700" onclick="fbSync()">☁ Firebase'e Senkronize Et</button>
             <button class="btn" style="text-align:left;padding:8px 12px" onclick="tumYedekle()">⬆ Tüm Veriyi Yedekle (JSON)</button>
             <button class="btn" style="text-align:left;padding:8px 12px;position:relative">⬇ Yedekten Geri Yükle<input type="file" accept=".json" onchange="geriYukle(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer"></button>
             <div style="height:1px;background:var(--bdr);margin:3px 0"></div>
