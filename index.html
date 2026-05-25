@@ -18,11 +18,8 @@
   };
   const app = initializeApp(cfg);
   const db  = getFirestore(app);
-  const storage = getStorage(app);
   window._db = db;
-  window._storage = storage;
   window._fs = { collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query };
-  window._st = { ref, uploadBytes, getDownloadURL, deleteObject };
   window._fbReady = true;
   window.dispatchEvent(new Event("fbReady"));
 </script>
@@ -1418,8 +1415,9 @@ function rArac(){
 
   // Sağ tık kapat
   document.addEventListener('click', function closeCTX(e){
-    if(!e.target.closest('#ACTX')){
-      document.getElementById('ACTX').style.display='none';
+    const actx=document.getElementById('ACTX');
+    if(actx&&!e.target.closest('#ACTX')){
+      actx.style.display='none';
     }
   },{once:false});
 }
