@@ -8,7 +8,6 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
   const cfg = {
     apiKey:"AIzaSyD4u36sxAr9pHid2V-h9_ngWR8SMDbvd1Q",
     authDomain:"fleetvision-20c34.firebaseapp.com",
@@ -606,26 +605,34 @@ const sAcc=localStorage.getItem('fv_accent');if(sAcc)setAccent(sAcc);
 /* ============================================================
    DOSYA YÜKLEME SİSTEMİ
 ============================================================ */
+// Cloudinary config
+const CLOUDINARY_CLOUD='ddss6tknu';
+const CLOUDINARY_PRESET='abilsmbq';
+
 async function dosyaYukle(dosya, yol){
-  if(!window._storage||!window._st)return null;
   try{
-    const storageRef=window._st.ref(window._storage, yol);
-    const snapshot=await window._st.uploadBytes(storageRef, dosya);
-    const url=await window._st.getDownloadURL(snapshot.ref);
-    return url;
+    const fd=new FormData();
+    fd.append('file', dosya);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('folder', 'fleetvision');
+    const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`,{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.secure_url){
+      return data.secure_url;
+    } else {
+      toast('⚠️','Yükleme hatası: '+JSON.stringify(data.error));
+      return null;
+    }
   }catch(e){
     console.error('Dosya yükleme hatası:',e);
-    toast('⚠️','Dosya yüklenemedi: '+e.message);
+    toast('⚠️','Dosya yüklenemedi!');
     return null;
   }
 }
 
 async function dosyaSil(url){
-  if(!window._storage||!window._st||!url)return;
-  try{
-    const storageRef=window._st.ref(window._storage, url);
-    await window._st.deleteObject(storageRef);
-  }catch(e){console.warn('Dosya silme:',e);}
+  // Cloudinary silme API key gerektirir, şimdilik pas
+  console.log('Dosya silme:', url);
 }
 
 function dosyaInput(id, label, accept, onUpload){
