@@ -1462,7 +1462,7 @@ function addArac(){
   const p=document.getElementById('AR-P').value.trim().toUpperCase();
   if(!p){toast('⚠️','Plaka zorunlu!');return;}
   if(ARACLAR.find(a=>a.plaka===p)){toast('⚠️','Bu plaka zaten kayıtlı!');return;}
-  const a={id:uid(),plaka:p,tip:document.getElementById('AR-T').value,marka:document.getElementById('AR-M').value,model:document.getElementById('AR-MO').value,yil:parseInt(document.getElementById('AR-Y').value)||null,saat:parseFloat(document.getElementById('AR-S').value)||0,bolge:document.getElementById('AR-B').value,durum:document.getElementById('AR-D').value,bkm:0};
+  const a={id:uid(),plaka:p,tip:document.getElementById('AR-T').value,marka:document.getElementById('AR-M').value,model:document.getElementById('AR-MO').value,yil:parseInt(document.getElementById('AR-Y')?.value)||null,yakit_tip:document.getElementById('AR-YT')?.value||'Dizel',saat:0,km:0,bolge:document.getElementById('AR-B')?.value||'',durum:document.getElementById('AR-D')?.value||'Aktif',sigorta_bitis:document.getElementById('AR-SIG')?.value||'',muayene_bitis:document.getElementById('AR-MUA')?.value||'',bkm:0};
   ARACLAR.push(a);fbSave('araclar',a.id,a);toast('◈',`${p} eklendi!`);rArac();
 }
 function aracX(id){if(!confirm('Silinecek?'))return;const i=ARACLAR.findIndex(a=>a.id===id);if(i>=0){fbDel('araclar',id);ARACLAR.splice(i,1);}localStorage.setItem('fv_ar_v',Date.now());toast('◈','Araç silindi!');rArac();}
