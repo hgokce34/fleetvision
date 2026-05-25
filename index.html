@@ -303,6 +303,7 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
 .notif-item:hover{background:var(--s3)}
 .notif-item:last-child{border-bottom:none}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <!-- MOBİL OVERLAY -->
@@ -892,7 +893,140 @@ function saveOp(){
 }
 
 /* CSV */
-function dlCSV(c,n){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(c);a.download=(n||'export')+'_'+today()+'.csv';a.click();}
+function dlCSV(c,n){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(c);a.download=(n||'export')+'_'+today()+'.csv';a.click();}
+
+function dlXLS(data,sheetName,fileName){
+  try{
+    const wb=XLSX.utils.book_new();
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    // Sütun genişlikleri
+    const cols=data[0]?data[0].map(()=>({wch:18})):[];
+    ws['!cols']=cols;
+    XLSX.utils.book_append_sheet(wb,ws,sheetName||'Veri');
+    XLSX.writeFile(wb,(fileName||'export')+'_'+today()+'.xlsx');
+    toast('📊','Excel dosyası indirildi!');
+  }catch(e){
+    toast('⚠️','Excel export hatası!');
+    console.error(e);
+  }
+}
+
+function expXLS(tip){
+  switch(tip){
+    case 'arac':
+      dlXLS([
+        ['Plaka','Tip','Marka','Model','Yıl','Durum','Saat','KM','Bölge','Yakıt Tipi','Sigorta Bitiş','Muayene Bitiş'],
+        ...ARACLAR.map(a=>[a.plaka,a.tip,a.marka||'',a.model||'',a.yil||'',a.durum,a.saat||0,a.km||0,a.bolge||'',a.yakit_tip||'',a.sigorta_bitis||'',a.muayene_bitis||''])
+      ],'Araçlar','araclar');
+      break;
+    case 'yakit':
+      dlXLS([
+        ['Plaka','Tarih','Litre','Tutar','KM','İstasyon','Personel'],
+        ...YAKITLAR.map(y=>[y.plaka,y.tarih,y.litre||0,y.tutar||0,y.km||0,y.istasyon||'',y.personel||''])
+      ],'Yakıt','yakit');
+      break;
+    case 'bakim':
+      dlXLS([
+        ['Plaka','Bakım Tipi','Periyot','Kalan','Son Tarih','Durum'],
+        ...BAKIM_LIST.map(b=>[b.plaka,b.tip,b.periyot||0,b.kalan||0,b.tarih||'',b.durum||''])
+      ],'Bakım','bakim');
+      break;
+    case 'ariza':
+      dlXLS([
+        ['Plaka','Arıza Tipi','Öncelik','Durum','Açıklama','Tarih','Atanan','Maliyet'],
+        ...ARIZA_LIST.map(a=>[a.plaka,a.tip,a.oncelik,a.durum,a.aciklama||'',a.tarih||'',a.atanan||'',a.maliyet||0])
+      ],'Arıza','ariza');
+      break;
+    case 'personel':
+      dlXLS([
+        ['Ad Soyad','Görev','Tel','Vardiya','Durum','İşe Giriş','Ehliyet','Toplam KM','Puan'],
+        ...PERSONEL.map(p=>[p.ad,p.gorev,p.tel,p.vardiya,p.durum,p.ise_giris||'',p.ehliyet||'',p.toplam_km||0,p.puan||0])
+      ],'Personel','personel');
+      break;
+    case 'maliyet':
+      dlXLS([
+        ['Plaka','Kategori','Tutar (₺)','Tarih','Açıklama'],
+        ...MALIYET_LIST.map(m=>[m.plaka,m.kategori,m.tutar||0,m.tarih||'',m.aciklama||''])
+      ],'Maliyet','maliyet');
+      break;
+    case 'lastik':
+      dlXLS([
+        ['Plaka','Marka','Ebat','Cins','Seri No','Adet','Durum','KM/Saat','Tarih'],
+        ...LASTIK_LIST.map(l=>[l.plaka,l.marka,l.ebat,l.cinsi||'',l.seri||'',l.adet||0,l.durum,l.km||0,l.tarih||''])
+      ],'Lastik','lastik');
+      break;
+    case 'yedek':
+      dlXLS([
+        ['Kod','Ad','Araç Tipi','Marka','Stok','Eşik','Fiyat (₺)','Raf'],
+        ...YEDEK_LIST.map(y=>[y.kod||'',y.ad,y.arac_tipi||'',y.marka||'',y.stok||0,y.esik||0,y.fiyat||0,y.raf||''])
+      ],'Yedek Parça','yedek_parca');
+      break;
+    case 'musteri':
+      dlXLS([
+        ['Ad','Tel','Email','Adres','İl','Notlar'],
+        ...MUSTERI_LIST.map(m=>[m.ad,m.tel||'',m.email||'',m.adres||'',m.il||'',m.notlar||''])
+      ],'Müşteriler','musteriler');
+      break;
+    case 'sozlesme':
+      dlXLS([
+        ['Müşteri','Araç','Başlangıç','Bitiş','Tutar (₺)','Durum','Ödeme'],
+        ...SOZLESME_LIST.map(s=>[s.musteri,s.plaka||'',s.baslangic||'',s.bitis||'',s.tutar||0,s.durum||'',s.odeme||''])
+      ],'Sözleşmeler','sozlesmeler');
+      break;
+    case 'ceza':
+      dlXLS([
+        ['Plaka','Tür','Tutar (₺)','Tarih','Ödeme Tarihi','Durum','Açıklama'],
+        ...CEZA_LIST.map(c=>[c.plaka,c.tur||'',c.tutar||0,c.tarih||'',c.odeme_tarihi||'',c.durum||'',c.aciklama||''])
+      ],'Cezalar','cezalar');
+      break;
+    case 'kaza':
+      dlXLS([
+        ['Plaka','Tarih','Konum','Hasar (₺)','Sigorta','Durum','Açıklama'],
+        ...KAZA_LIST.map(k=>[k.plaka,k.tarih||'',k.konum||'',k.hasar||0,k.sigorta||'',k.durum||'',k.aciklama||''])
+      ],'Kazalar','kazalar');
+      break;
+    case 'surucu':
+      dlXLS([
+        ['Sürücü','Araç','Başlangıç','Bitiş','Mesafe (km)','Yakıt (L)','Durum','Not'],
+        ...SURUCU_GOREV.map(g=>[g.surucu,g.plaka,g.baslangic||'',g.bitis||'',g.mesafe||0,g.yakit||0,g.durum,g.not||''])
+      ],'Sürücü Görevleri','surucu_gorev');
+      break;
+    case 'stok':
+      dlXLS([
+        ['Ürün','Kategori','Stok','Birim','Fiyat (₺)','Raf','Durum'],
+        ...STOK_LIST.map(s=>[s.urun||'',s.kategori||'',s.stok||0,s.birim||'',s.fiyat||0,s.raf||'',s.durum||''])
+      ],'Depo Stok','depo_stok');
+      break;
+    case 'tumFiloRaporu':
+      // Tüm filo özet raporu - birden fazla sheet
+      try{
+        const wb=XLSX.utils.book_new();
+        // Araçlar
+        const wsA=XLSX.utils.aoa_to_sheet([
+          ['Plaka','Tip','Marka','Durum','Saat','Bölge'],
+          ...ARACLAR.map(a=>[a.plaka,a.tip,a.marka||'',a.durum,a.saat||0,a.bolge||''])
+        ]);
+        XLSX.utils.book_append_sheet(wb,wsA,'Araçlar');
+        // Maliyet
+        const wsM=XLSX.utils.aoa_to_sheet([
+          ['Plaka','Kategori','Tutar','Tarih'],
+          ...MALIYET_LIST.map(m=>[m.plaka,m.kategori,m.tutar||0,m.tarih||''])
+        ]);
+        XLSX.utils.book_append_sheet(wb,wsM,'Maliyet');
+        // Personel
+        const wsP=XLSX.utils.aoa_to_sheet([
+          ['Ad','Görev','Durum','Puan','KM'],
+          ...PERSONEL.map(p=>[p.ad,p.gorev,p.durum,p.puan||0,p.toplam_km||0])
+        ]);
+        XLSX.utils.book_append_sheet(wb,wsP,'Personel');
+        XLSX.writeFile(wb,'FleetVision_Rapor_'+today()+'.xlsx');
+        toast('📊','Tam filo raporu indirildi!');
+      }catch(e){toast('⚠️','Rapor hatası!');console.error(e);}
+      break;
+    default:
+      toast('⚠️','Bilinmeyen export tipi!');
+  }
+}
 /* ============================================================
    1. ANA PANEL
 ============================================================ */
@@ -984,7 +1118,7 @@ function rArac(){
           <span id="ARAC-SEC-INFO" style="font-size:10px;color:var(--t3);font-family:var(--mono)"></span>
           <button class="ub" id="BTN-TOPLU" style="display:none;color:var(--a)" onclick="topluIslem()">◉ Toplu İşlem</button>
           <div class="ca" onclick="toggleSutunPanel()">⊞ Sütunlar</div>
-          <div class="ca" onclick="expArac()">CSV ↓</div>
+          <div class="ca" onclick="expArac()">CSV ↓</div><div class="ca" onclick="expXLS('arac')" style="color:var(--g)">XLS ↓</div>
         </div>
       </div>
 
@@ -1330,7 +1464,7 @@ function rYakit(){
       <button class="tab-btn" onclick="ykTab(this,'YK4')">🚛 Araç Bazlı</button>
     </div>
     <div class="tab-c on" id="YK1">
-      <div class="card"><div class="ch"><div class="ct">Yakıt Kayıtları</div><div class="ca" onclick="expYakit()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Yakıt Kayıtları</div><div class="ca" onclick="expYakit()">CSV ↓</div><div class="ca" onclick="expXLS('yakit')" style="color:var(--g)">XLS ↓</div></div>
         <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
           <input class="fi" id="YK-F" placeholder="Plaka ara..." style="width:140px" oninput="ykFiltre()">
           <select class="fsel" id="YK-AY" style="width:120px" onchange="ykFiltre()"><option value="">Tüm Aylar</option>${aylar.map((a,i)=>`<option value="${a}">${ayL[i]}</option>`).join('')}</select>
@@ -1425,7 +1559,7 @@ function rAriza(){
       ${kpi(fmtTL(ARIZA_LIST.reduce((s,a)=>s+(a.maliyet||0),0)),'Toplam Maliyet','arıza maliyeti','nt','💰','#aa66ff',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Arıza Listesi</div><div class="ca" onclick="expAriza()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Arıza Listesi</div><div class="ca" onclick="expAriza()">CSV ↓</div><div class="ca" onclick="expXLS('ariza')" style="color:var(--g)">XLS ↓</div></div>
         ${sdiv('🔴','AÇIK ARIZALAR','var(--r)')}
         ${acik.map(a=>`<div class="al-card" style="--al-c:${a.oncelik==='Kritik'?'var(--r)':'var(--a)'}">
           <div class="al-ico" style="font-size:20px">${a.oncelik==='Kritik'?'🔴':a.oncelik==='Yüksek'?'🟡':'🟢'}</div>
@@ -1482,7 +1616,7 @@ function rPersonel(){
       ${kpi(PERSONEL.filter(p=>p.durum==='Pasif').length,'Pasif','ayrıldı','nt','⚪','#aa66ff',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Personel Listesi</div><div class="ca" onclick="expPer()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Personel Listesi</div><div class="ca" onclick="expPer()">CSV ↓</div><div class="ca" onclick="expXLS('personel')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>AD SOYAD</th><th>GÖREV</th><th>VARDİYA</th><th>TELEFON</th><th>DURUM</th><th>İŞE GİRİŞ</th><th>İŞLEM</th></tr></thead>
         <tbody>${PERSONEL.map((p,i)=>`<tr>
           <td class="bold">${p.ad}</td><td class="muted">${p.gorev}</td><td>${p.vardiya||'—'}</td>
@@ -1523,7 +1657,7 @@ function rMesai(){
     </div>
     <div class="tab-c on" id="MS1">
       <div class="g2">
-        <div class="card"><div class="ch"><div class="ct">Mesai Kayıtları</div><div class="ca" onclick="expMesai()">CSV ↓</div></div>
+        <div class="card"><div class="ch"><div class="ct">Mesai Kayıtları</div><div class="ca" onclick="expMesai()">CSV ↓</div><div class="ca" onclick="expXLS('mesai')" style="color:var(--g)">XLS ↓</div></div>
           <div class="tw"><table><thead><tr><th>TARİH</th><th>PERSONEL</th><th>GİRİŞ</th><th>ÇIKIŞ</th><th>TOPLAM</th><th>TİP</th><th>İŞLEM</th></tr></thead>
           <tbody>${msSatir(MESAI_LIST)}</tbody></table></div>
         </div>
@@ -1697,7 +1831,7 @@ function rDepo(){
     </div>
     ${krit.length?`<div style="background:rgba(255,68,85,.08);border:1px solid rgba(255,68,85,.3);border-radius:9px;padding:10px 14px;margin-bottom:10px;color:#ff8888;font-size:11px;font-family:var(--mono)">⚡ KRİTİK: ${krit.map(k=>k.ad).join(' · ')}</div>`:''}
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Stok Deposu</div><div class="ca" onclick="expStok()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Stok Deposu</div><div class="ca" onclick="expStok()">CSV ↓</div><div class="ca" onclick="expXLS('stok')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>KOD</th><th>AD</th><th>KATEGORİ</th><th>RAF</th><th>MİKTAR</th><th>EŞİK</th><th>FİYAT</th><th>DEĞER</th><th>DURUM</th><th>İŞLEM</th></tr></thead>
         <tbody id="ST-TB">${stSatir(STOK)}</tbody></table></div>
       </div>
@@ -1739,7 +1873,7 @@ function rLastik(){
       ${kpi(LASTIK_LIST.filter(l=>l.durum==='Hurda').length,'Hurda','kullanım dışı','nt','♻️','#aa66ff',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Lastik Kayıtları</div><div class="ca" onclick="expLastik()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Lastik Kayıtları</div><div class="ca" onclick="expLastik()">CSV ↓</div><div class="ca" onclick="expXLS('lastik')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>PLAKA</th><th>MARKA</th><th>EBAT</th><th>CİNS</th><th>SERİ NO</th><th>ADET</th><th>DURUM</th><th>KM/SA</th><th>TARİH</th><th>İŞLEM</th></tr></thead>
         <tbody>${LASTIK_LIST.map((l,i)=>`<tr>
           <td class="mono bold green">${l.plaka}</td>
@@ -1789,7 +1923,7 @@ function rYedek(){
     </div>
     ${krit.length?`<div style="background:rgba(255,68,85,.08);border:1px solid rgba(255,68,85,.3);border-radius:9px;padding:10px 14px;margin-bottom:10px;color:#ff8888;font-size:11px;font-family:var(--mono)">⚡ KRİTİK: ${krit.map(k=>k.ad).join(' · ')}</div>`:''}
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Yedek Parça Kataloğu</div><div class="ca" onclick="expYedek()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Yedek Parça Kataloğu</div><div class="ca" onclick="expYedek()">CSV ↓</div><div class="ca" onclick="expXLS('yedek')" style="color:var(--g)">XLS ↓</div></div>
         <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
           <input class="fi" id="YP-F" placeholder="Parça ara..." style="width:140px" oninput="ypFiltre()">
           <select class="fsel" id="YP-TF" style="width:130px" onchange="ypFiltre()"><option value="">Tüm Tipler</option>${[...new Set(YEDEK_LIST.map(y=>y.arac_tipi))].map(t=>`<option>${t}</option>`).join('')}</select>
@@ -2047,7 +2181,7 @@ function rMaliyet(){
 
         <!-- SON MALİYET KAYITLARI -->
         <div class="card">
-          <div class="ch"><div class="ct">📋 Son Kayıtlar</div><div class="ca" onclick="expMaliyet()">CSV ↓</div></div>
+          <div class="ch"><div class="ct">📋 Son Kayıtlar</div><div class="ca" onclick="expMaliyet()">CSV ↓</div><div class="ca" onclick="expXLS('maliyet')" style="color:var(--g)">XLS ↓</div></div>
           <div class="tw"><table><thead><tr><th>ARAÇ</th><th>KATEGORİ</th><th>TUTAR</th><th>TARİH</th><th>İŞLEM</th></tr></thead>
           <tbody>${MALIYET_LIST.slice().reverse().map((m,i)=>`<tr>
             <td class="mono bold green">${m.plaka}</td>
@@ -2521,7 +2655,7 @@ function rMusteri(){
       ${kpi(fmtTL(SOZLESME_LIST.reduce((s,x)=>s+(x.tutar||0),0)),'Toplam Değer','sözleşme','nt','💰','#aa66ff',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Müşteri Listesi</div><div class="ca" onclick="expMusteri()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Müşteri Listesi</div><div class="ca" onclick="expMusteri()">CSV ↓</div><div class="ca" onclick="expXLS('musteri')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>MÜŞTERİ ADI</th><th>YETKİLİ</th><th>TELEFON</th><th>SEKTÖR</th><th>SÖZLEŞME</th><th>DURUM</th><th>İŞLEM</th></tr></thead>
         <tbody>${MUSTERI_LIST.map(m=>`<tr>
           <td class="bold">${m.ad}</td>
@@ -2564,7 +2698,7 @@ function rSozlesme(){
       ${kpi(SOZLESME_LIST.filter(s=>s.durum==='Tamamlandı').length,'Tamamlandı','biten','nt','⬡','#4488ff',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Sözleşme Listesi</div><div class="ca" onclick="expSozlesme()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Sözleşme Listesi</div><div class="ca" onclick="expSozlesme()">CSV ↓</div><div class="ca" onclick="expXLS('sozlesme')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>NO</th><th>MÜŞTERİ</th><th>TİP</th><th>BAŞLANGIÇ</th><th>BİTİŞ</th><th>TUTAR</th><th>DURUM</th><th>İŞLEM</th></tr></thead>
         <tbody>${SOZLESME_LIST.map(s=>{const m=MUSTERI_LIST.find(x=>x.id===s.musteri_id);return`<tr>
           <td class="mono bold blue">${s.no}</td>
@@ -2612,7 +2746,7 @@ function rCeza(){
       ${kpi(fmtTL(CEZA_LIST.filter(c=>c.durum==='Ödendi').reduce((s,c)=>s+(c.tutar||0),0)),'Ödenen Tutar','tahsilat','up','✓','#00ff88',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Ceza / Trafik İhlalleri</div><div class="ca" onclick="expCeza()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Ceza / Trafik İhlalleri</div><div class="ca" onclick="expCeza()">CSV ↓</div><div class="ca" onclick="expXLS('ceza')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>PLAKA</th><th>TİP</th><th>TARİH</th><th>PERSONEL</th><th>TUTAR</th><th>DURUM</th><th>İŞLEM</th></tr></thead>
         <tbody>${CEZA_LIST.map(c=>`<tr>
           <td class="mono bold green">${c.plaka}</td>
@@ -2653,7 +2787,7 @@ function rKaza(){
       ${kpi(KAZA_LIST.filter(k=>k.durum==='Kapatıldı').length,'Kapatıldı','tamamlandı','up','✓','#00ff88',.15)}
     </div>
     <div class="g2">
-      <div class="card"><div class="ch"><div class="ct">Kaza & Hasar Kayıtları</div><div class="ca" onclick="expKaza()">CSV ↓</div></div>
+      <div class="card"><div class="ch"><div class="ct">Kaza & Hasar Kayıtları</div><div class="ca" onclick="expKaza()">CSV ↓</div><div class="ca" onclick="expXLS('kaza')" style="color:var(--g)">XLS ↓</div></div>
         ${KAZA_LIST.map(k=>`
           <div class="al-card" style="--al-c:${k.durum==='Süreçte'?'var(--a)':'var(--b)'}">
             <div class="al-ico">💥</div>
@@ -2697,6 +2831,15 @@ function rRaporlar(){
   const aylar=[],ayL=[];
   for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);aylar.push(d.toISOString().slice(0,7));ayL.push(d.toLocaleDateString('tr-TR',{month:'short',year:'2-digit'}));}
   document.getElementById('CNT').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="fsub" onclick="expXLS('tumFiloRaporu')" style="background:var(--g);color:#000;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;border:none">
+        📊 TAM FİLO RAPORU İNDİR (Excel)
+      </button>
+      <button class="ub" onclick="expXLS('arac')" style="color:var(--g)">🚛 Araç XLS</button>
+      <button class="ub" onclick="expXLS('maliyet')" style="color:var(--r)">💹 Maliyet XLS</button>
+      <button class="ub" onclick="expXLS('personel')" style="color:var(--b)">👤 Personel XLS</button>
+      <button class="ub" onclick="expXLS('yakit')" style="color:var(--a)">⛽ Yakıt XLS</button>
+    </div>
     <div class="g4">
       ${kpi(fmtTL(ykMal),'Bu Ay Yakıt','maliyet','nt','⛽','#ffaa00',.00)}
       ${kpi(fmtTL(azMal),'Arıza Maliyeti','toplam','nt','⚡','#ff4455',.05)}
