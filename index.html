@@ -1760,7 +1760,7 @@ function rYakit(){
   const pD=pL.map(p=>YAKITLAR.filter(y=>y.plaka===p&&y.tarih?.startsWith(buAy)).reduce((s,y)=>s+(y.litre||0),0));
   if(pD.length)CH.ykPie=mkDonut('YK-PIE',pL,pD);
 }
-function ykTab(el,id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc)tc.classList.add('on');}
+function ykTab(el,id){const cnt=document.getElementById('CNT');if(cnt)cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc){tc.classList.add('on');tc.style.display='block';}}
 function ykSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Kayıt bulunamadı</td></tr>`;
 return list.map(y=>`<tr><td class="mono muted">${fmtD(y.tarih)}</td><td class="mono bold green">${y.plaka}</td><td class="muted">${y.arac_tip||'?'}</td><td class="mono bold amber">${fmtN(y.litre)} L</td><td>${y.personel||'—'}</td><td class="muted">${y.bolge||'—'}</td><td><button class="ub del" onclick="ykX('${y.id}')">✕</button></td></tr>`).join('');}
 function ykFiltre(){const ar=(document.getElementById('YK-F')?.value||'').toLowerCase();const ay=document.getElementById('YK-AY')?.value||'';const f=YAKITLAR.filter(y=>(!ar||y.plaka?.toLowerCase().includes(ar))&&(!ay||y.tarih?.startsWith(ay)));const tb=document.getElementById('YK-TB');if(tb)tb.innerHTML=ykSatir(f);}
@@ -2046,14 +2046,21 @@ function izinHaklariHesapla(){
 }
 
 function msTab(el,id){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));
+  // Sadece bu sekme grubundaki butonları sıfırla
+  const tabBar=el.closest('.tab-bar')||el.parentElement;
+  tabBar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  // Sadece CNT içindeki tab-c'leri sıfırla
+  const cnt=document.getElementById('CNT');
+  if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
   const tc=document.getElementById(id);
-  if(tc)tc.classList.add('on');
+  if(tc){
+    tc.classList.add('on');
+    tc.style.display='block';
+  }
   // İzin hakları sekmesi açılınca tabloyu güncelle
   if(id==='MS5'){
-    const tbody=tc?.querySelector('tbody');
+    const tbody=document.getElementById('IZIN-HAKKI-TBODY')||tc?.querySelector('tbody');
     if(tbody)tbody.innerHTML=izinHaklariHesapla();
   }
 }
@@ -2146,7 +2153,7 @@ function rHakedis(){
       </div>
     </div>`;
 }
-function hkTab(el,id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc)tc.classList.add('on');}
+function hkTab(el,id){const cnt=document.getElementById('CNT');if(cnt)cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc){tc.classList.add('on');tc.style.display='block';}}
 function hkHes(){const m=parseFloat(document.getElementById('HK-M')?.value)||0;const f=parseFloat(document.getElementById('HK-F')?.value)||0;const t=m*f;const tg=document.getElementById('HK-TG');const kg=document.getElementById('HK-KG');if(tg)tg.textContent=fmtTL(t);if(kg)kg.textContent=fmtTL(Math.round(t*1.2));}
 function hkSatir(list){if(!list.length)return`<tr><td colspan="10" style="text-align:center;color:var(--t3);padding:14px">Hakediş kaydı yok</td></tr>`;
 return list.map(h=>`<tr><td class="mono muted">${h.donem||'—'}</td><td>${h.proje_ad||h.bolge||'?'}</td><td class="muted">${h.musteri_ad||'—'}</td><td class="mono bold green">${h.plaka||'?'}</td><td class="mono">${(h.miktar||0)} ${h.birim||''}</td><td class="mono">${fmtTL(h.fiyat||0)}</td><td class="mono bold green">${fmtTL(h.tutar||0)}</td><td><select onchange="hkD('${h.id}',this.value)" style="background:var(--s3);border:1px solid var(--bdr);color:var(--t);padding:3px 6px;border-radius:5px;font-size:9px"><option>Bekliyor</option><option>Onaylandı</option><option>Ödendi</option><option>İptal</option></select></td><td><button class="ub del" onclick="hkX('${h.id}')">✕</button></td></tr>`).join('');}
