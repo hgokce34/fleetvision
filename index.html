@@ -8,6 +8,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
   const cfg = {
     apiKey:"AIzaSyD4u36sxAr9pHid2V-h9_ngWR8SMDbvd1Q",
     authDomain:"fleetvision-20c34.firebaseapp.com",
@@ -18,8 +19,11 @@
   };
   const app = initializeApp(cfg);
   const db  = getFirestore(app);
+  const storage = getStorage(app);
   window._db = db;
+  window._storage = storage;
   window._fs = { collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, query };
+  window._st = { ref, uploadBytes, getDownloadURL, deleteObject };
   window._fbReady = true;
   window.dispatchEvent(new Event("fbReady"));
 </script>
@@ -598,6 +602,77 @@ const sAcc=localStorage.getItem('fv_accent');if(sAcc)setAccent(sAcc);
 /* ============================================================
    FİREBASE
 ============================================================ */
+
+/* ============================================================
+   DOSYA YÜKLEME SİSTEMİ
+============================================================ */
+async function dosyaYukle(dosya, yol){
+  if(!window._storage||!window._st)return null;
+  try{
+    const storageRef=window._st.ref(window._storage, yol);
+    const snapshot=await window._st.uploadBytes(storageRef, dosya);
+    const url=await window._st.getDownloadURL(snapshot.ref);
+    return url;
+  }catch(e){
+    console.error('Dosya yükleme hatası:',e);
+    toast('⚠️','Dosya yüklenemedi: '+e.message);
+    return null;
+  }
+}
+
+async function dosyaSil(url){
+  if(!window._storage||!window._st||!url)return;
+  try{
+    const storageRef=window._st.ref(window._storage, url);
+    await window._st.deleteObject(storageRef);
+  }catch(e){console.warn('Dosya silme:',e);}
+}
+
+function dosyaInput(id, label, accept, onUpload){
+  return `<div class="fg">
+    <label class="fl">${label}</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="file" id="${id}" accept="${accept}" style="display:none" onchange="handleDosya('${id}',this,${onUpload})">
+      <button class="ub" onclick="document.getElementById('${id}').click()" style="color:var(--b)">📎 Dosya Seç</button>
+      <span id="${id}-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+    </div>
+    <div id="${id}-preview" style="margin-top:6px"></div>
+  </div>`;
+}
+
+async function handleDosya(inputId, input, callback){
+  const dosya=input.files[0];
+  if(!dosya)return;
+  const nameEl=document.getElementById(inputId+'-name');
+  if(nameEl)nameEl.textContent=dosya.name+' (yükleniyor...)';
+  const yol=`fleetvision/${inputId}_${Date.now()}_${dosya.name}`;
+  const url=await dosyaYukle(dosya, yol);
+  if(url){
+    if(nameEl)nameEl.textContent=dosya.name+' ✅';
+    // Önizleme
+    const preview=document.getElementById(inputId+'-preview');
+    if(preview){
+      if(dosya.type.startsWith('image/')){
+        preview.innerHTML=`<img src="${url}" style="max-width:200px;max-height:120px;border-radius:6px;border:1px solid var(--bdr)">`;
+      } else {
+        preview.innerHTML=`<a href="${url}" target="_blank" style="font-size:10px;color:var(--b)">📄 ${dosya.name} - Görüntüle</a>`;
+      }
+    }
+    // Callback ile URL'i kaydet
+    if(typeof callback==='function')callback(url);
+    else window['_dosyaUrl_'+inputId]=url;
+    toast('📎','Dosya yüklendi!');
+  }
+}
+
+function dosyaGoruntule(dosyalar){
+  if(!dosyalar||!dosyalar.length)return '';
+  return dosyalar.map(d=>`
+    <a href="${d.url}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:4px 9px;background:var(--s3);border-radius:6px;font-size:10px;color:var(--b);text-decoration:none;margin:2px">
+      ${d.tip==='image'?'🖼️':'📄'} ${d.ad}
+    </a>`).join('');
+}
+
 async function fbSave(col,id,data){
   if(!window._db)return;
   try{await window._fs.setDoc(window._fs.doc(window._db,col,id),{...data,id});}catch(e){console.warn('fbSave:',e);}
@@ -1310,6 +1385,13 @@ function rArac(){
         <div class="fg"><label class="fl">Durum</label><select class="fsel" id="AR-D"><option>Aktif</option><option>Bakımda</option><option>Arızalı</option><option>Pasif</option></select></div></div>
         <div class="frow"><div class="fg"><label class="fl">Sigorta Bitiş</label><input class="fi" id="AR-SIG" type="date"></div>
         <div class="fg"><label class="fl">Muayene Bitiş</label><input class="fi" id="AR-MUA" type="date"></div></div>
+        <div class="fg"><label class="fl">Fotoğraf / Belge</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="AR-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._arDosya=this.files[0];document.getElementById('ar-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('AR-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="ar-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addArac()">＋ ARAÇ EKLE</button>
       </div>
       <div class="card"><div class="ch"><div class="ct">⚙️ Hızlı Güncelle</div></div>
@@ -1587,7 +1669,16 @@ function addArac(){
     saat:0,km:0,bkm:0
   };
   ARACLAR.push(a);
-  fbSave('araclar',a.id,a);
+  // Dosya varsa yükle
+  const arDosya=window._arDosya;
+  if(arDosya){
+    dosyaYukle(arDosya,`fleetvision/araclar/${a.id}_${arDosya.name}`).then(url=>{
+      if(url){a.dosyalar=[{url,ad:arDosya.name,tip:arDosya.type.startsWith('image/')?'image':'pdf'}];fbSave('araclar',a.id,a);}
+    });
+    window._arDosya=null;
+  } else {
+    fbSave('araclar',a.id,a);
+  }
   toast('◈',`${p} eklendi!`);
   rArac();
 }
@@ -1752,6 +1843,13 @@ function rAriza(){
         <div class="fg"><label class="fl">Tarih</label><input class="fi" id="AZ-D" type="date" value="${today()}"></div>
         <div class="fg"><label class="fl">Açıklama *</label><textarea class="fi" id="AZ-AC" style="height:75px;resize:vertical" placeholder="Arıza detayı..."></textarea></div>
         <div class="fg"><label class="fl">Tahmini Maliyet (₺)</label><input class="fi" id="AZ-M" type="number" min="0" value="0"></div>
+        <div class="fg"><label class="fl">Arıza Fotoğrafı / Belge</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="AZ-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._azDosya=this.files[0];document.getElementById('az-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('AZ-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="az-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addAriza()">⚡ ARIZA KAYDI OLUŞTUR</button>
       </div>
     </div>`;
@@ -2412,6 +2510,7 @@ function rSigorta(){
             <td class="mono" style="color:${renk}">${fmtD(s.bitis)} <span style="font-size:9px">(${gun>0?gun+' gün':'GEÇTİ'})</span></td>
             <td class="mono bold">${fmtTL(s.prim)}</td>
             <td><span class="pill" style="background:${s.durum==='Aktif'?'rgba(0,255,136,.15)':'rgba(255,68,85,.15)'};color:${s.durum==='Aktif'?'var(--g)':'var(--r)'}">${s.durum}</span></td>
+            <td>${s.dosyalar&&s.dosyalar.length?`<a href="${s.dosyalar[0].url}" target="_blank" class="ub" style="color:var(--b)">${s.dosyalar[0].tip==='image'?'🖼️':'📄'}</a>`:''}</td>
             <td><button class="ub del" onclick="sigortaX('${s.id}')">✕</button></td>
           </tr>`;
         }).join('')}</tbody></table></div>
@@ -2424,6 +2523,13 @@ function rSigorta(){
         <div class="frow"><div class="fg"><label class="fl">Başlangıç</label><input class="fi" id="SIG-B" type="date"></div>
         <div class="fg"><label class="fl">Bitiş</label><input class="fi" id="SIG-E" type="date"></div></div>
         <div class="fg"><label class="fl">Prim (₺)</label><input class="fi" id="SIG-PR" type="number" min="0"></div>
+        <div class="fg"><label class="fl">Poliçe PDF / Belge</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="SIG-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._sigDosya=this.files[0];document.getElementById('sig-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('SIG-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="sig-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addSigorta()">◈ POLİÇE EKLE</button>
       </div>
     </div>`;
@@ -2439,7 +2545,9 @@ function addSigorta(){
   if(!plaka||!sirket){toast('⚠️','Araç ve şirket zorunlu!');return;}
   const yeni={id:'sig'+Date.now(),plaka,tip,sirket,police_no,baslangic:bas,bitis:bit,prim,durum:'Aktif'};
   SIGORTA_LIST.push(yeni);
-  fbSave('sigortalar',yeni.id,yeni);
+  const sigD=window._sigDosya;
+  if(sigD){dosyaYukle(sigD,`fleetvision/sigortalar/${yeni.id}_${sigD.name}`).then(url=>{if(url){yeni.dosyalar=[{url,ad:sigD.name,tip:sigD.type.startsWith('image/')?'image':'pdf'}];fbSave('sigortalar',yeni.id,yeni);}});window._sigDosya=null;}
+  else fbSave('sigortalar',yeni.id,yeni);
   toast('🛡️','Poliçe eklendi!');rSigorta();
 }
 function sigortaX(id){const i=SIGORTA_LIST.findIndex(s=>s.id===id);if(i>=0){SIGORTA_LIST.splice(i,1);toast('✓','Poliçe silindi!');rSigorta();}}
@@ -2472,6 +2580,13 @@ function rEkspertiz(){
         <div class="frow"><div class="fg"><label class="fl">Durum</label><select class="fsel" id="EK-D"><option>Hasar Yok</option><option>Minör Hasar</option><option>Majör Hasar</option><option>Toplam Hasar</option></select></div>
         <div class="fg"><label class="fl">Bedel (₺)</label><input class="fi" id="EK-B" type="number" min="0"></div></div>
         <div class="fg"><label class="fl">Notlar</label><textarea class="fi" id="EK-N" style="height:60px" placeholder="Ekspertiz notları..."></textarea></div>
+        <div class="fg"><label class="fl">Ekspertiz Raporu / Fotoğraf</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="EK-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._ekDosya=this.files[0];document.getElementById('ek-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('EK-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="ek-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addEkspertiz()">◈ KAYDET</button>
       </div>
     </div>`;
@@ -2486,7 +2601,9 @@ function addEkspertiz(){
   if(!plaka||!uzman){toast('⚠️','Araç ve uzman zorunlu!');return;}
   const yeni={id:'eks'+Date.now(),plaka,tarih,uzman,durum,bedel,notlar};
   EKSPERTIZ_LIST.push(yeni);
-  fbSave('ekspertiz',yeni.id,yeni);
+  const ekD=window._ekDosya;
+  if(ekD){dosyaYukle(ekD,`fleetvision/ekspertiz/${yeni.id}_${ekD.name}`).then(url=>{if(url){yeni.dosyalar=[{url,ad:ekD.name,tip:ekD.type.startsWith('image/')?'image':'pdf'}];fbSave('ekspertiz',yeni.id,yeni);}});window._ekDosya=null;}
+  else fbSave('ekspertiz',yeni.id,yeni);
   toast('🔍','Ekspertiz kaydedildi!');rEkspertiz();
 }
 function ekspertizX(id){const i=EKSPERTIZ_LIST.findIndex(e=>e.id===id);if(i>=0){EKSPERTIZ_LIST.splice(i,1);toast('✓','Silindi!');rEkspertiz();}}
@@ -2576,6 +2693,13 @@ function rFatura(){
         <div class="frow"><div class="fg"><label class="fl">Fatura Tarihi</label><input class="fi" id="FTR-D" type="date" value="${today()}"></div>
         <div class="fg"><label class="fl">Vade Tarihi</label><input class="fi" id="FTR-V" type="date"></div></div>
         <div class="fg"><label class="fl">Durum</label><select class="fsel" id="FTR-DU"><option>Bekliyor</option><option>Ödendi</option><option>Gecikmiş</option><option>İptal</option></select></div>
+        <div class="fg"><label class="fl">Fatura PDF / Belge</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="FTR-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._ftrDosya=this.files[0];document.getElementById('ftr-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('FTR-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="ftr-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addFatura()">◈ FATURA OLUŞTUR</button>
       </div>
     </div>`;
@@ -2599,7 +2723,9 @@ function addFatura(){
   const no='FTR-'+Date.now();
   const yeni={id:'ftr'+Date.now(),no,musteri,tutar,kdv,toplam,tarih,vade,durum};
   FATURA_LIST.push(yeni);
-  fbSave('faturalar',yeni.id,yeni);
+  const ftrD=window._ftrDosya;
+  if(ftrD){dosyaYukle(ftrD,`fleetvision/faturalar/${yeni.id}_${ftrD.name}`).then(url=>{if(url){yeni.dosyalar=[{url,ad:ftrD.name,tip:ftrD.type.startsWith('image/')?'image':'pdf'}];fbSave('faturalar',yeni.id,yeni);}});window._ftrDosya=null;}
+  else fbSave('faturalar',yeni.id,yeni);
   toast('🧾','Fatura oluşturuldu!');rFatura();
 }
 function faturaX(id){const i=FATURA_LIST.findIndex(f=>f.id===id);if(i>=0){FATURA_LIST.splice(i,1);toast('✓','Silindi!');rFatura();}}
@@ -3395,6 +3521,13 @@ function rKaza(){
         <div class="frow"><div class="fg"><label class="fl">Personel</label><select class="fsel" id="KZ-P"><option value="">— Seçin —</option>${PERSONEL.map(p=>`<option>${p.ad}</option>`).join('')}</select></div>
         <div class="fg"><label class="fl">Sigorta Dosya No</label><input class="fi" id="KZ-S" placeholder="SGR-2026-001"></div></div>
         <div class="fg"><label class="fl">Açıklama *</label><textarea class="fi" id="KZ-AC" style="height:70px;resize:vertical" placeholder="Kaza detayı..."></textarea></div>
+        <div class="fg"><label class="fl">Kaza Fotoğrafı / Belge</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="file" id="KZ-DOSYA" accept="image/*,.pdf" style="display:none" onchange="window._kzDosya=this.files[0];document.getElementById('kz-dosya-name').textContent=this.files[0]?.name||''">
+            <button class="ub" onclick="document.getElementById('KZ-DOSYA').click()" style="color:var(--b)">📎 Dosya Seç</button>
+            <span id="kz-dosya-name" style="font-size:10px;color:var(--t3)">Seçilmedi</span>
+          </div>
+        </div>
         <button class="fsub" onclick="addKaza()">💥 KAZA KAYDI EKLE</button>
       </div>
     </div>`;
