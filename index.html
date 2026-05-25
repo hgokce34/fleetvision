@@ -45,9 +45,9 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* LOGIN */
-.ls{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000}
+.ls{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse at 20% 50%,rgba(0,255,136,.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(0,170,255,.05) 0%,transparent 50%)}
 .ls.h{display:none}
-.lb{background:var(--s1);border:1px solid var(--bdr2);border-radius:20px;padding:36px;width:400px;max-width:95vw;position:relative;animation:fadeUp .5s ease}
+.lb{background:var(--s1);border:1px solid var(--bdr2);border-radius:20px;padding:36px;width:420px;max-width:95vw;position:relative;animation:fadeUp .5s ease;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .lb::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--g),transparent);border-radius:20px 20px 0 0}
 .li-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center}
 .li-ico{width:48px;height:48px;background:var(--g);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000}
@@ -309,14 +309,29 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
 <div class="ls" id="LS">
   <div class="lb">
     <div class="li-logo">
-      <div class="li-ico">F</div>
-      <div class="li-brand"><h1>FleetVision</h1><p>2026 PRO — FİLO YÖNETİM SİSTEMİ</p></div>
+      <div class="li-ico" style="background:linear-gradient(135deg,var(--g),#00aaff);border-radius:14px;width:56px;height:56px;font-size:26px">🚛</div>
+      <div class="li-brand">
+        <h1 style="font-size:22px;font-weight:900;letter-spacing:-.5px">FleetVision</h1>
+        <p style="font-size:9px;color:var(--g);font-family:var(--mono);letter-spacing:.1em">2026 PRO — FİLO YÖNETİM SİSTEMİ</p>
+      </div>
     </div>
-    <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fi" id="LU" placeholder="kullanici" autocomplete="username" onkeydown="if(e.key==='Enter'||event.key==='Enter')login()"></div>
-    <div class="fg"><label class="fl">Şifre</label><input class="fi" id="LP" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(e.key==='Enter'||event.key==='Enter')login()"></div>
+    <div class="fg"><label class="fl">Kullanıcı Adı</label><input class="fi" id="LU" placeholder="kullanıcı adı" autocomplete="username" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="fg"><label class="fl">Şifre</label>
+      <div style="position:relative">
+        <input class="fi" id="LP" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()" style="padding-right:40px">
+        <button onclick="togglePwd()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px" id="PWD-EYE">👁</button>
+      </div>
+    </div>
     <button class="li-btn" onclick="login()">◈ GİRİŞ YAP</button>
     <div class="li-err" id="LE">⚡ Kullanıcı adı veya şifre hatalı!</div>
-    <div class="li-hint">Admin: <span>hamza</span> / <span>fleet2026</span></div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr);text-align:center">
+      <div style="font-size:8px;color:var(--t3);font-family:var(--mono);letter-spacing:.15em;margin-bottom:4px">POWERED BY</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px">
+        <div style="width:20px;height:20px;background:linear-gradient(135deg,#00ff88,#00aaff);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#000">g</div>
+        <span style="font-size:13px;font-weight:800;background:linear-gradient(135deg,#00ff88,#00aaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">gSoft</span>
+        <span style="font-size:9px;color:var(--t3);font-family:var(--mono)">Technology</span>
+      </div>
+    </div>
   </div>
 </div>
 <!-- ANA UYGULAMA -->
@@ -344,8 +359,30 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
       <div class="tb-r">
         <div class="date-chip" id="DT">--</div>
         <button class="notif-btn" id="NBTN" onclick="toggleNotif()" title="Bildirimler">🔔<span class="notif-badge" id="NBADGE">3</span></button>
-        <button class="th-btn" id="THBTN" onclick="toggleTheme()" title="Tema">🌙</button>
-        <button class="btn pri" onclick="openMB('OM')">＋ Kayıt</button>
+        <button class="th-btn" id="THBTN" onclick="toggleTheme()" title="Tema Değiştir" style="font-size:16px;min-width:36px">🌙</button>
+        <div style="position:relative">
+        <button class="btn pri" onclick="toggleQMenu()" id="QMBTN">＋ Hızlı Kayıt ▾</button>
+        <div id="QMENU" style="display:none;position:fixed;right:10px;top:52px;background:var(--s2);border:1px solid var(--bdr2);border-radius:12px;padding:8px;min-width:200px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.4)">
+          <div style="font-size:8px;color:var(--t3);font-family:var(--mono);padding:4px 8px;letter-spacing:.1em">HIZLI KAYIT</div>
+          ${[
+            ['⛽','Yakıt Kaydı','rYakit'],
+            ['🔧','Bakım Kaydı','rBakim'],
+            ['⚡','Arıza Kaydı','rAriza'],
+            ['🚗','Araç Ekle','rArac'],
+            ['👤','Personel Ekle','rPersonel'],
+            ['🏷️','Lastik Kaydı','rLastik'],
+            ['📦','Yedek Parça','rYedek'],
+            ['🚦','Ceza Kaydı','rCeza'],
+            ['💥','Kaza Kaydı','rKaza'],
+            ['🤝','Müşteri Ekle','rMusteri'],
+            ['📋','Sözleşme Ekle','rSozlesme'],
+            ['📊','Hakediş','rHakedis'],
+          ].map(([ico,lbl,fn])=>`
+            <div onclick="go('${fn}');toggleQMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:11px;display:flex;align-items:center;gap:9px;color:var(--t)" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background=''">
+              <span style="font-size:15px">${ico}</span><span>${lbl}</span>
+            </div>`).join('')}
+        </div>
+      </div>
         <button class="mob-menu-btn" onclick="logout()" title="Çıkış" style="color:var(--r);border-color:rgba(255,68,85,.3)">⏻</button>
     </div>
     </div>
@@ -504,11 +541,25 @@ function tick(){
 tick();setInterval(tick,1000);
 
 function applyTheme(t){
-  THEME=t;document.documentElement.setAttribute('data-theme',t);
+  document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('fv_theme',t);
   const btn=document.getElementById('THBTN');
-  if(btn)btn.textContent=t==='dark'?'☀️':'🌙';
+  if(btn)btn.textContent=t==='dark'?'🌙':'☀️';
 }
+
+
+function toggleQMenu(){
+  const m=document.getElementById('QMENU');
+  if(!m)return;
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#QMBTN')&&!e.target.closest('#QMENU')){
+    const m=document.getElementById('QMENU');
+    if(m)m.style.display='none';
+  }
+});
+
 function toggleTheme(){applyTheme(THEME==='dark'?'light':'dark');}
 applyTheme(THEME);
 
@@ -590,6 +641,13 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 /* ============================================================
    GİRİŞ / ÇIKIŞ
 ============================================================ */
+function togglePwd(){
+  const inp=document.getElementById('LP');
+  const eye=document.getElementById('PWD-EYE');
+  if(inp.type==='password'){inp.type='text';eye.textContent='🙈';}
+  else{inp.type='password';eye.textContent='👁';}
+}
+
 function login(){
   const u=document.getElementById('LU').value.trim().toLowerCase();
   const p=document.getElementById('LP').value;
@@ -1800,39 +1858,169 @@ function expArsiv(){const h='Tarih,Kullanıcı,Araç,Personel,Bölge,Saat,Yakıt
    14. KULLANICI YÖNETİMİ
 ============================================================ */
 function rKul(){
+  if(!isA()){rDenied();return;}
   const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
+  const MODULLER=[
+    {id:'panel',lbl:'📊 Ana Panel'},
+    {id:'harita',lbl:'🗺️ Canlı Harita'},
+    {id:'arac',lbl:'🚛 Araç Yönetimi'},
+    {id:'yakit',lbl:'⛽ Yakıt'},
+    {id:'bakim',lbl:'🔧 Bakım'},
+    {id:'ariza',lbl:'⚡ Arıza'},
+    {id:'kaza',lbl:'💥 Kaza & Hasar'},
+    {id:'ceza',lbl:'🚦 Ceza'},
+    {id:'personel',lbl:'👤 Personel'},
+    {id:'mesai',lbl:'⏱ Mesai & İzin'},
+    {id:'musteri',lbl:'🤝 Müşteri'},
+    {id:'sozlesme',lbl:'📋 Sözleşme'},
+    {id:'hakedis',lbl:'📈 Hakediş'},
+    {id:'depo',lbl:'📦 Depo'},
+    {id:'lastik',lbl:'🏷️ Lastik'},
+    {id:'yedek',lbl:'🔩 Yedek Parça'},
+    {id:'ai',lbl:'🧠 AI Analitik'},
+    {id:'raporlar',lbl:'📊 Raporlar'},
+    {id:'arsiv',lbl:'📁 Arşiv'},
+  ];
+
   document.getElementById('CNT').innerHTML=`
     <div class="g2">
       <div>
         <div style="margin-bottom:10px;font-size:9px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em">KAYITLI KULLANICILAR — ${Object.keys(u).length} hesap</div>
         ${Object.entries(u).map(([un,usr])=>`
-          <div style="background:var(--s3);border:1px solid var(--bdr);border-radius:9px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:7px">
-            <div class="sb-av ${usr.rol==='admin'?'av-a':'av-u'}" style="width:36px;height:36px;font-size:12px">${usr.ad.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:600">${usr.ad}</div>
-              <div style="font-size:9px;color:var(--t3);font-family:var(--mono);margin-top:2px">${un} · ${usr.gorev} · <span class="${usr.rol==='admin'?'role-a':'role-u'}">${usr.rol.toUpperCase()}</span></div>
+          <div style="background:var(--s3);border:1px solid var(--bdr);border-radius:9px;padding:12px;margin-bottom:7px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:${un!=='hamza'&&un!=='admin'?'10px':'0'}">
+              <div class="sb-av ${usr.rol==='admin'?'av-a':'av-u'}" style="width:36px;height:36px;font-size:12px">${usr.ad.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600">${usr.ad}</div>
+                <div style="font-size:9px;color:var(--t3);font-family:var(--mono);margin-top:2px">${un} · ${usr.gorev||'—'} · <span class="${usr.rol==='admin'?'role-a':'role-u'}">${usr.rol.toUpperCase()}</span></div>
+              </div>
+              <div style="display:flex;gap:5px">
+                ${un!=='hamza'?`<button class="ub" onclick="yetkiDuzenle('${un}')" style="color:var(--b)">🔑 Yetki</button>`:''}
+                ${un!=='hamza'&&un!=='admin'&&un!==CU?.username?`<button class="ub del" onclick="kulX('${un}')">✕ Sil</button>`:''}
+              </div>
             </div>
-            ${un!=='hamza'&&un!=='admin'&&un!==CU?.username?`<button class="ub del" onclick="kulX('${un}')">Sil</button>`:''}
+            ${un!=='hamza'&&un!=='admin'?`
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)">
+              <div style="font-size:8px;color:var(--t3);font-family:var(--mono);margin-bottom:6px;letter-spacing:.08em">MODÜL YETKİLERİ</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px">
+                ${MODULLER.map(m=>{
+                  const yetkiler=usr.yetkiler||{};
+                  const aktif=yetkiler[m.id]!==false;
+                  return `<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:${aktif?'rgba(0,255,136,.15)':'rgba(255,68,85,.1)'};color:${aktif?'var(--g)':'var(--t3)'};border:1px solid ${aktif?'rgba(0,255,136,.3)':'rgba(255,68,85,.2)'}">${m.lbl}</span>`;
+                }).join('')}
+              </div>
+            </div>`:''}
           </div>`).join('')}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="card"><div class="ch"><div class="ct">Yeni Kullanıcı Ekle</div></div>
-          <div class="fg"><label class="fl">Kullanıcı Adı *</label><input class="fi" id="KU-U" placeholder="kullanici_adi"></div>
-          <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="KU-A" placeholder="Ad Soyad"></div>
-          <div class="fg"><label class="fl">Şifre *</label><input class="fi" id="KU-S" type="password" placeholder="••••••••"></div>
-          <div class="fg"><label class="fl">Görev</label><input class="fi" id="KU-G" placeholder="Operatör"></div>
-          <div class="fg"><label class="fl">Rol</label><select class="fsel" id="KU-R"><option value="user">Kullanıcı (Veri Girişi)</option><option value="admin">Admin (Tam Yetki)</option></select></div>
+          <div class="fg"><label class="fl">Kullanıcı Adı *</label><input class="fi" id="KUL-U" placeholder="kullanici123"></div>
+          <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="KUL-A" placeholder="Ad Soyad"></div>
+          <div class="fg"><label class="fl">Şifre *</label><input class="fi" id="KUL-S" type="password" placeholder="••••••••"></div>
+          <div class="fg"><label class="fl">Görev</label><input class="fi" id="KUL-G" placeholder="Filo Sorumlusu"></div>
+          <div class="fg"><label class="fl">Rol</label>
+            <select class="fsel" id="KUL-R">
+              <option value="user">👤 Kullanıcı</option>
+              <option value="admin">⭐ Admin</option>
+              <option value="viewer">👁 Görüntüleyici</option>
+            </select>
+          </div>
           <button class="fsub" onclick="kulE()">＋ KULLANICI EKLE</button>
         </div>
-        <div class="card"><div class="ch"><div class="ct">Şifre Değiştir</div></div>
-          <div class="fg"><label class="fl">Kullanıcı</label><select class="fsel" id="SP-U">${Object.entries(u).map(([un,usr])=>`<option value="${un}">${usr.ad} (${un})</option>`).join('')}</select></div>
-          <div class="fg"><label class="fl">Yeni Şifre *</label><input class="fi" id="SP-S" type="password" placeholder="••••••••"></div>
-          <button class="fsub sec" onclick="sifreD()">🔑 ŞİFRE GÜNCELLE</button>
-        </div>
       </div>
-    </div>`;
+    </div>
+
+    <!-- YETKİ MODAL -->
+    <div class="mb" id="YETKI-MB" onclick="closeMB('YETKI-MB',event)">
+      <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+        <div class="mh"><div class="mt">🔑 Modül Yetkileri</div><button class="mc" onclick="closeMB('YETKI-MB')">✕</button></div>
+        <div id="YETKI-ICERIK"></div>
+        <button class="fsub" onclick="yetkiKaydet()">◈ YETKİLERİ KAYDET</button>
+      </div>
+    </div>
+  `;
 }
-function kulE(){const un=document.getElementById('KU-U').value.trim().toLowerCase();const ad=document.getElementById('KU-A').value.trim();const s=document.getElementById('KU-S').value;if(!un||!ad||!s){toast('⚠️','Tüm alanları doldurun!');return;}const u=JSON.parse(localStorage.getItem('fv_users')||'null')||{...USERS_DB};if(u[un]){toast('⚠️','Bu kullanıcı adı mevcut!');return;}u[un]={sifre:s,ad,rol:document.getElementById('KU-R').value,gorev:document.getElementById('KU-G').value||'Personel'};localStorage.setItem('fv_users',JSON.stringify(u));if(window._fbReady)fbSave('users',un,{id:un,...u[un]});toast('◈',`${ad} eklendi!`);rKul();}
+
+function yetkiDuzenle(un){
+  const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
+  const usr=u[un];
+  if(!usr)return;
+  const MODULLER=[
+    {id:'panel',lbl:'📊 Ana Panel'},{id:'harita',lbl:'🗺️ Canlı Harita'},
+    {id:'arac',lbl:'🚛 Araç Yönetimi'},{id:'yakit',lbl:'⛽ Yakıt'},
+    {id:'bakim',lbl:'🔧 Bakım'},{id:'ariza',lbl:'⚡ Arıza'},
+    {id:'kaza',lbl:'💥 Kaza & Hasar'},{id:'ceza',lbl:'🚦 Ceza'},
+    {id:'personel',lbl:'👤 Personel'},{id:'mesai',lbl:'⏱ Mesai & İzin'},
+    {id:'musteri',lbl:'🤝 Müşteri'},{id:'sozlesme',lbl:'📋 Sözleşme'},
+    {id:'hakedis',lbl:'📈 Hakediş'},{id:'depo',lbl:'📦 Depo'},
+    {id:'lastik',lbl:'🏷️ Lastik'},{id:'yedek',lbl:'🔩 Yedek Parça'},
+    {id:'ai',lbl:'🧠 AI Analitik'},{id:'raporlar',lbl:'📊 Raporlar'},
+    {id:'arsiv',lbl:'📁 Arşiv'},
+  ];
+  window._yetkiUN=un;
+  const yetkiler=usr.yetkiler||{};
+  document.getElementById('YETKI-ICERIK').innerHTML=`
+    <div style="margin-bottom:12px;padding:10px;background:var(--s3);border-radius:8px">
+      <div style="font-size:12px;font-weight:700">${usr.ad}</div>
+      <div style="font-size:9px;color:var(--t3);font-family:var(--mono)">${un} · ${usr.rol.toUpperCase()}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="ub" onclick="tumYetki(true)" style="color:var(--g)">✓ Tümünü Aç</button>
+      <button class="ub" onclick="tumYetki(false)" style="color:var(--r)">✕ Tümünü Kapat</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      ${MODULLER.map(m=>{
+        const aktif=yetkiler[m.id]!==false;
+        return `<label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--s3);border-radius:7px;cursor:pointer;border:1px solid ${aktif?'rgba(0,255,136,.3)':'var(--bdr)'}">
+          <input type="checkbox" id="YTK-${m.id}" ${aktif?'checked':''} style="accent-color:var(--g)">
+          <span style="font-size:11px">${m.lbl}</span>
+        </label>`;
+      }).join('')}
+    </div>
+  `;
+  openMB('YETKI-MB');
+}
+
+function tumYetki(aktif){
+  document.querySelectorAll('[id^="YTK-"]').forEach(cb=>cb.checked=aktif);
+}
+
+function yetkiKaydet(){
+  const un=window._yetkiUN;
+  if(!un)return;
+  const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
+  const MODIDS=['panel','harita','arac','yakit','bakim','ariza','kaza','ceza','personel','mesai','musteri','sozlesme','hakedis','depo','lastik','yedek','ai','raporlar','arsiv'];
+  const yetkiler={};
+  MODIDS.forEach(id=>{
+    const cb=document.getElementById('YTK-'+id);
+    if(cb)yetkiler[id]=cb.checked;
+  });
+  u[un].yetkiler=yetkiler;
+  localStorage.setItem('fv_users',JSON.stringify(u));
+  if(window._fbReady)fbSave('users',un,u[un]);
+  closeMB('YETKI-MB');
+  toast('🔑','Yetkiler kaydedildi!');
+  rKul();
+}
+
+function kulE(){
+  const un=document.getElementById('KUL-U')?.value.trim();
+  const ad=document.getElementById('KUL-A')?.value.trim();
+  const sp=document.getElementById('KUL-S')?.value.trim();
+  const gv=document.getElementById('KUL-G')?.value.trim()||'';
+  const rl=document.getElementById('KUL-R')?.value||'user';
+  if(!un||!ad||!sp){toast('⚠️','Zorunlu alanları doldurun!');return;}
+  const u=JSON.parse(localStorage.getItem('fv_users')||'null')||USERS_DB;
+  if(u[un]){toast('⚠️','Bu kullanıcı adı zaten alınmış!');return;}
+  u[un]={ad,sifre:sp,gorev:gv,rol:rl,yetkiler:{}};
+  localStorage.setItem('fv_users',JSON.stringify(u));
+  if(window._fbReady)fbSave('users',un,u[un]);
+  toast('✓',`${ad} eklendi!`);
+  rKul();
+}
+
+
+
 function kulX(un){if(!confirm(`"${un}" silinecek?`))return;const u=JSON.parse(localStorage.getItem('fv_users')||'null')||{...USERS_DB};delete u[un];localStorage.setItem('fv_users',JSON.stringify(u));if(window._fbReady)fbDel('users',un);toast('◈','Kullanıcı silindi!');rKul();}
 function sifreD(){const un=document.getElementById('SP-U').value;const s=document.getElementById('SP-S').value;if(!s||s.length<4){toast('⚠️','Şifre en az 4 karakter!');return;}const u=JSON.parse(localStorage.getItem('fv_users')||'null')||{...USERS_DB};u[un].sifre=s;localStorage.setItem('fv_users',JSON.stringify(u));if(window._fbReady)fbSave('users',un,{id:un,...u[un]});toast('🔑','Şifre güncellendi!');document.getElementById('SP-S').value='';}
 
