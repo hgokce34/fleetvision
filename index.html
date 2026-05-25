@@ -63,6 +63,8 @@ html,body{height:100%;background:var(--bg);color:var(--t);font-family:var(--font
 .li-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .li-err{background:rgba(255,68,85,.1);border:1px solid rgba(255,68,85,.3);border-radius:8px;padding:9px 14px;color:#ff8888;font-size:11px;font-family:var(--mono);margin-top:10px;display:none;text-align:center}
 .li-err.show{display:block}
+.qmi{padding:8px 12px;cursor:pointer;border-radius:7px;font-size:11px;display:flex;align-items:center;gap:9px;color:var(--t)}
+.qmi:hover{background:var(--s3)}
 .li-hint{text-align:center;margin-top:16px;font-size:10px;color:var(--t3);font-family:var(--mono)}
 .li-hint span{color:var(--g)}
 
@@ -364,23 +366,18 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
         <button class="btn pri" onclick="toggleQMenu()" id="QMBTN">＋ Hızlı Kayıt ▾</button>
         <div id="QMENU" style="display:none;position:fixed;right:10px;top:52px;background:var(--s2);border:1px solid var(--bdr2);border-radius:12px;padding:8px;min-width:200px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.4)">
           <div style="font-size:8px;color:var(--t3);font-family:var(--mono);padding:4px 8px;letter-spacing:.1em">HIZLI KAYIT</div>
-          ${[
-            ['⛽','Yakıt Kaydı','rYakit'],
-            ['🔧','Bakım Kaydı','rBakim'],
-            ['⚡','Arıza Kaydı','rAriza'],
-            ['🚗','Araç Ekle','rArac'],
-            ['👤','Personel Ekle','rPersonel'],
-            ['🏷️','Lastik Kaydı','rLastik'],
-            ['📦','Yedek Parça','rYedek'],
-            ['🚦','Ceza Kaydı','rCeza'],
-            ['💥','Kaza Kaydı','rKaza'],
-            ['🤝','Müşteri Ekle','rMusteri'],
-            ['📋','Sözleşme Ekle','rSozlesme'],
-            ['📊','Hakediş','rHakedis'],
-          ].map(([ico,lbl,fn])=>`
-            <div onclick="go('${fn}');toggleQMenu()" style="padding:8px 12px;cursor:pointer;border-radius:7px;font-size:11px;display:flex;align-items:center;gap:9px;color:var(--t)" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background=''">
-              <span style="font-size:15px">${ico}</span><span>${lbl}</span>
-            </div>`).join('')}
+          <div onclick="go('rYakit');toggleQMenu()" class="qmi">⛽ Yakıt Kaydı</div>
+          <div onclick="go('rBakim');toggleQMenu()" class="qmi">🔧 Bakım Kaydı</div>
+          <div onclick="go('rAriza');toggleQMenu()" class="qmi">⚡ Arıza Kaydı</div>
+          <div onclick="go('rArac');toggleQMenu()" class="qmi">🚛 Araç Ekle</div>
+          <div onclick="go('rPersonel');toggleQMenu()" class="qmi">👤 Personel Ekle</div>
+          <div onclick="go('rLastik');toggleQMenu()" class="qmi">🏷️ Lastik Kaydı</div>
+          <div onclick="go('rYedek');toggleQMenu()" class="qmi">📦 Yedek Parça</div>
+          <div onclick="go('rCeza');toggleQMenu()" class="qmi">🚦 Ceza Kaydı</div>
+          <div onclick="go('rKaza');toggleQMenu()" class="qmi">💥 Kaza Kaydı</div>
+          <div onclick="go('rMusteri');toggleQMenu()" class="qmi">🤝 Müşteri Ekle</div>
+          <div onclick="go('rSozlesme');toggleQMenu()" class="qmi">📋 Sözleşme Ekle</div>
+          <div onclick="go('rHakedis');toggleQMenu()" class="qmi">📊 Hakediş</div>
         </div>
       </div>
         <button class="mob-menu-btn" onclick="logout()" title="Çıkış" style="color:var(--r);border-color:rgba(255,68,85,.3)">⏻</button>
