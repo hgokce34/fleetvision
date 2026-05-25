@@ -1459,12 +1459,31 @@ function topluDurumDegistir(){
 }
 
 function addArac(){
-  const p=document.getElementById('AR-P').value.trim().toUpperCase();
+  const pEl=document.getElementById('AR-P');
+  if(!pEl){toast('⚠️','Form yüklenmedi!');return;}
+  const p=pEl.value.trim().toUpperCase();
   if(!p){toast('⚠️','Plaka zorunlu!');return;}
   if(ARACLAR.find(a=>a.plaka===p)){toast('⚠️','Bu plaka zaten kayıtlı!');return;}
-  const a={id:uid(),plaka:p,tip:document.getElementById('AR-T').value,marka:document.getElementById('AR-M').value,model:document.getElementById('AR-MO').value,yil:parseInt(document.getElementById('AR-Y')?.value)||null,yakit_tip:document.getElementById('AR-YT')?.value||'Dizel',saat:0,km:0,bolge:document.getElementById('AR-B')?.value||'',durum:document.getElementById('AR-D')?.value||'Aktif',sigorta_bitis:document.getElementById('AR-SIG')?.value||'',muayene_bitis:document.getElementById('AR-MUA')?.value||'',bkm:0};
-  ARACLAR.push(a);fbSave('araclar',a.id,a);toast('◈',`${p} eklendi!`);rArac();
+  const g=id=>document.getElementById(id)?.value||'';
+  const a={
+    id:uid(),plaka:p,
+    tip:g('AR-T')||'Kamyon',
+    marka:g('AR-M'),
+    model:g('AR-MO'),
+    yil:parseInt(g('AR-Y'))||null,
+    yakit_tip:g('AR-YT')||'Dizel',
+    bolge:g('AR-B'),
+    durum:g('AR-D')||'Aktif',
+    sigorta_bitis:g('AR-SIG'),
+    muayene_bitis:g('AR-MUA'),
+    saat:0,km:0,bkm:0
+  };
+  ARACLAR.push(a);
+  fbSave('araclar',a.id,a);
+  toast('◈',`${p} eklendi!`);
+  rArac();
 }
+
 function aracX(id){if(!confirm('Silinecek?'))return;const i=ARACLAR.findIndex(a=>a.id===id);if(i>=0){fbDel('araclar',id);ARACLAR.splice(i,1);}localStorage.setItem('fv_ar_v',Date.now());toast('◈','Araç silindi!');rArac();}
 function aracD(i,d){ARACLAR[i].durum=d;fbSave('araclar',ARACLAR[i].id,ARACLAR[i]);toast('◈',`${ARACLAR[i].plaka}: ${d}`);}
 function aracS(i){const s=parseFloat(prompt(`${ARACLAR[i].plaka} — Eklenecek saat:`)||'0');if(!s||isNaN(s))return;ARACLAR[i].saat=(ARACLAR[i].saat||0)+s;fbSave('araclar',ARACLAR[i].id,ARACLAR[i]);toast('◈',`+${s} saat`);rArac();}
