@@ -330,8 +330,8 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr);text-align:center">
       <div style="font-size:8px;color:var(--t3);font-family:var(--mono);letter-spacing:.15em;margin-bottom:4px">POWERED BY</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px">
-        <div style="width:20px;height:20px;background:linear-gradient(135deg,#00ff88,#00aaff);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#000">g</div>
-        <span style="font-size:13px;font-weight:800;background:linear-gradient(135deg,#00ff88,#00aaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">gSoft</span>
+        <div style="width:20px;height:20px;background:linear-gradient(135deg,#00ff88,#00aaff);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#000">HG</div>
+        <span style="font-size:13px;font-weight:800;background:linear-gradient(135deg,#00ff88,#00aaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">HGTech</span>
         <span style="font-size:9px;color:var(--t3);font-family:var(--mono)">Technology</span>
       </div>
     </div>
@@ -679,7 +679,7 @@ const sAcc=localStorage.getItem('fv_accent');if(sAcc)setAccent(sAcc);
 ============================================================ */
 async function fbSave(col,id,data){
   if(!window._db)return;
-  try{await window._fs.setDoc(window._fs.doc(window._db,col,id),data);}catch(e){}
+  try{await window._fs.setDoc(window._fs.doc(window._db,col,id),{...data,id});}catch(e){console.warn('fbSave:',e);}
 }
 async function fbGetAll(col){
   if(!window._db)return[];
@@ -692,11 +692,19 @@ async function fbDel(col,id){
 async function fbLoad(){
   if(!window._db){setTimeout(fbLoad,500);return;}
   try{
-    const[ar,bk,st,lt,yp,pr,op,yk,ms,iz,hk,az,per]=await Promise.all([
+    const[ar,bk,st,lt,yp,pr,op,yk,ms,iz,hk,az,per,
+          sig,eks,uy,ftr,tah,gl,sa,asat,mal,sgv,kul,
+          mus,soz,cez,kaz,maliyet]=await Promise.all([
       fbGetAll('araclar'),fbGetAll('bakim'),fbGetAll('stok'),fbGetAll('lastik'),
       fbGetAll('yedek'),fbGetAll('projeler'),fbGetAll('operasyonlar'),fbGetAll('yakitlar'),
       fbGetAll('mesai'),fbGetAll('izin'),fbGetAll('hakedis'),fbGetAll('ariza'),
-      fbGetAll('personel')
+      fbGetAll('personel'),
+      fbGetAll('sigortalar'),fbGetAll('ekspertiz'),fbGetAll('ustyapi'),
+      fbGetAll('faturalar'),fbGetAll('tahsilat'),fbGetAll('gelir'),
+      fbGetAll('satin_alma'),fbGetAll('arac_satis'),fbGetAll('maliyet'),
+      fbGetAll('surucu_gorev'),fbGetAll('users'),
+      fbGetAll('musteriler'),fbGetAll('sozlesmeler'),fbGetAll('cezalar'),
+      fbGetAll('kazalar'),fbGetAll('maliyet')
     ]);
     // Tüm listeler için: Firebase'den yükle, ama silme işlemlerini de uygula
     function fbSync(fbList,localList,koleksiyon){
@@ -722,21 +730,38 @@ async function fbLoad(){
         for(const p of per){if(!localIds.has(p.id))await fbDel('personel',p.id);}
       }
     }
-    if(ar.length&&!localStorage.getItem('fv_ar_v'))ARACLAR=ar;
-    if(bk.length&&!BAKIM_LIST.length)BAKIM_LIST=bk;
-    if(st.length&&!localStorage.getItem('fv_st_v'))STOK=st;
-    if(lt.length&&!localStorage.getItem('fv_lt_v'))LASTIK_LIST=lt;
-    if(yp.length&&!localStorage.getItem('fv_yp_v'))YEDEK_LIST=yp;
-    if(pr.length&&!localStorage.getItem('fv_pr_v'))PROJE_LIST=pr;
+    // Temel veriler
+    if(ar.length)ARACLAR=ar;
+    if(bk.length)BAKIM_LIST=bk;
+    if(st.length)STOK=st;
+    if(lt.length)LASTIK_LIST=lt;
+    if(yp.length)YEDEK_LIST=yp;
+    if(pr.length)PROJE_LIST=pr;
     if(op.length)OPERASYONLAR=op;
     if(yk.length)YAKITLAR=yk;
     if(ms.length)MESAI_LIST=ms;
     if(iz.length)IZIN_LIST=iz;
     if(hk.length)HAKEDIS_LIST=hk;
     if(az.length)ARIZA_LIST=az;
-    const ul=await fbGetAll('users');
-    if(ul.length){const u=JSON.parse(localStorage.getItem('fv_users')||'{}');ul.forEach(x=>{if(x.id)u[x.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev};});localStorage.setItem('fv_users',JSON.stringify(u));}
-    console.log('✅ Firebase yüklendi');
+    if(per.length)PERSONEL.splice(0,PERSONEL.length,...per);
+    // Yeni modüller
+    if(sig.length)SIGORTA_LIST.splice(0,SIGORTA_LIST.length,...sig);
+    if(eks.length)EKSPERTIZ_LIST.splice(0,EKSPERTIZ_LIST.length,...eks);
+    if(uy.length)USTYAPI_LIST.splice(0,USTYAPI_LIST.length,...uy);
+    if(ftr.length)FATURA_LIST.splice(0,FATURA_LIST.length,...ftr);
+    if(tah.length)TAHSILAT_LIST.splice(0,TAHSILAT_LIST.length,...tah);
+    if(gl.length)GELIR_LIST.splice(0,GELIR_LIST.length,...gl);
+    if(sa.length)SATIN_ALMA_LIST.splice(0,SATIN_ALMA_LIST.length,...sa);
+    if(asat.length)ARAC_SATIS_LIST.splice(0,ARAC_SATIS_LIST.length,...asat);
+    if(mal.length)MALIYET_LIST.splice(0,MALIYET_LIST.length,...mal);
+    if(sgv.length)SURUCU_GOREV.splice(0,SURUCU_GOREV.length,...sgv);
+    if(mus.length)MUSTERI_LIST.splice(0,MUSTERI_LIST.length,...mus);
+    if(soz.length)SOZLESME_LIST.splice(0,SOZLESME_LIST.length,...soz);
+    if(cez.length)CEZA_LIST.splice(0,CEZA_LIST.length,...cez);
+    if(kaz.length)KAZA_LIST.splice(0,KAZA_LIST.length,...kaz);
+    // Kullanıcılar
+    if(kul.length){const u=JSON.parse(localStorage.getItem('fv_users')||'{}');kul.forEach(x=>{if(x.id)u[x.id]={sifre:x.sifre,ad:x.ad,rol:x.rol,gorev:x.gorev,yetkiler:x.yetkiler||{}};});localStorage.setItem('fv_users',JSON.stringify(u));}
+        console.log('✅ Firebase yüklendi');
   }catch(e){console.warn('FB yükleme:',e);}
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
