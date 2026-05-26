@@ -853,8 +853,8 @@ let BILDIRIMLER=[
 
 
 const USERS_DB={
-  'hamza':{sifre:'fleet2026',ad:'Hamza Gökçe',rol:'admin',gorev:'Sistem Yöneticisi'},
-  'admin':{sifre:'fleet2026',ad:'Hamza Gökçe',rol:'admin',gorev:'Sistem Yöneticisi'},
+  'hamza':{sifre:'HMZgkc29.',ad:'Hamza Gökçe',rol:'admin',gorev:'Sistem Yöneticisi'},
+  'admin':{sifre:'HMZgkc29.',ad:'Hamza Gökçe',rol:'admin',gorev:'Sistem Yöneticisi'},
   'ahmet':{sifre:'1234',ad:'Ahmet Yılmaz',rol:'user',gorev:'Operatör'},
   'mehmet':{sifre:'1234',ad:'Mehmet Kaya',rol:'user',gorev:'Operatör'},
   'ali':{sifre:'1234',ad:'Ali Demir',rol:'user',gorev:'Bakım Teknisyeni'},
@@ -1264,7 +1264,7 @@ function login(){
   }
   CU={username:u,...usr};
   localStorage.setItem('fv_session',JSON.stringify(CU));
-  document.getElementById('LS').classList.add('h');
+  const lsEl=document.getElementById('LS');lsEl.classList.add('h');lsEl.style.display='none';lsEl.style.visibility='hidden';
   document.getElementById('APP').style.display='flex';
   initApp();
 }
@@ -1281,7 +1281,7 @@ function checkSession(){
   if(s){
     try{
       CU=JSON.parse(s);
-      document.getElementById('LS').classList.add('h');
+      const lsEl=document.getElementById('LS');lsEl.classList.add('h');lsEl.style.display='none';lsEl.style.visibility='hidden';
       document.getElementById('APP').style.display='flex';
       // Önce nav ve UI kur, sayfa yükleme bekle
       buildNav();
