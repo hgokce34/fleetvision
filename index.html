@@ -302,6 +302,95 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
 .notif-item{padding:10px 14px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background .15s}
 .notif-item:hover{background:var(--s3)}
 .notif-item:last-child{border-bottom:none}
+
+/* LOGIN ANIMASYON */
+#LS {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #060a14;
+  z-index: 1000;
+}
+#LS::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(0,255,136,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(68,136,255,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #060a14 0%, #0a1220 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+.login-road {
+  position: fixed;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,136,0.3), transparent);
+  z-index: 0;
+  animation: roadMove 3s linear infinite;
+}
+.login-road:nth-child(1) { top: 30%; animation-delay: 0s; }
+.login-road:nth-child(2) { top: 50%; animation-delay: 1s; opacity: 0.6; }
+.login-road:nth-child(3) { top: 70%; animation-delay: 2s; opacity: 0.4; }
+
+.login-truck {
+  position: fixed;
+  font-size: 24px;
+  z-index: 0;
+  opacity: 0.12;
+  animation: truckDrive linear infinite;
+  filter: hue-rotate(0deg);
+}
+.login-truck:nth-child(4) { top: 28%; animation-duration: 8s; animation-delay: 0s; font-size: 20px; }
+.login-truck:nth-child(5) { top: 48%; animation-duration: 12s; animation-delay: -4s; font-size: 28px; }
+.login-truck:nth-child(6) { top: 68%; animation-duration: 10s; animation-delay: -2s; font-size: 18px; opacity: 0.08; }
+.login-truck:nth-child(7) { top: 38%; animation-duration: 15s; animation-delay: -7s; font-size: 16px; opacity: 0.07; }
+
+@keyframes truckDrive {
+  from { right: -60px; }
+  to { right: 110%; }
+}
+@keyframes roadMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.login-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(68,136,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(68,136,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.login-dot {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(0,255,136,0.5);
+  z-index: 0;
+  animation: dotFloat linear infinite;
+}
+.login-dot:nth-child(8)  { width:3px;height:3px; left:10%; top:20%; animation-duration:6s; animation-delay:0s; }
+.login-dot:nth-child(9)  { width:2px;height:2px; left:80%; top:60%; animation-duration:8s; animation-delay:-2s; opacity:0.6; }
+.login-dot:nth-child(10) { width:4px;height:4px; left:50%; top:80%; animation-duration:7s; animation-delay:-3s; opacity:0.4; }
+.login-dot:nth-child(11) { width:2px;height:2px; left:30%; top:40%; animation-duration:9s; animation-delay:-1s; opacity:0.5; }
+.login-dot:nth-child(12) { width:3px;height:3px; left:70%; top:30%; animation-duration:5s; animation-delay:-4s; opacity:0.3; }
+
+@keyframes dotFloat {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(-100px, -80px); opacity: 0; }
+}
+
+.lb { position: relative; z-index: 1; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -1712,9 +1801,10 @@ function rYakit(){
     </div>
     <div class="tab-bar">
       <button class="tab-btn on" onclick="ykTab(this,'YK1')">📋 Liste</button>
-      <button class="tab-btn" onclick="ykTab(this,'YK2')">➕ Yakıt Ekle</button>
+      <button class="tab-btn" onclick="ykTab(this,'YK2')">➕ Günlük Ekle</button>
       <button class="tab-btn" onclick="ykTab(this,'YK3')">📊 Aylık Analiz</button>
       <button class="tab-btn" onclick="ykTab(this,'YK4')">🚛 Araç Bazlı</button>
+      <button class="tab-btn" onclick="ykTab(this,'YK5')">📅 Aylık Toplu Giriş</button>
     </div>
     <div class="tab-c on" id="YK1">
       <div class="card"><div class="ch"><div class="ct">Yakıt Kayıtları</div><div class="ca" onclick="expYakit()">CSV ↓</div><div class="ca" onclick="expXLS('yakit')" style="color:var(--g)">XLS ↓</div></div>
@@ -1759,6 +1849,132 @@ function rYakit(){
   const pL=ARACLAR.filter(a=>YAKITLAR.some(y=>y.plaka===a.plaka&&y.tarih?.startsWith(buAy))).map(a=>a.plaka);
   const pD=pL.map(p=>YAKITLAR.filter(y=>y.plaka===p&&y.tarih?.startsWith(buAy)).reduce((s,y)=>s+(y.litre||0),0));
   if(pD.length)CH.ykPie=mkDonut('YK-PIE',pL,pD);
+  // YK5 - Aylık toplu giriş içeriği
+  const yk5El=document.getElementById('YK5');
+  if(yk5El&&!yk5El.innerHTML.trim()){
+    renderYK5();
+  }
+}
+
+function renderYK5(){
+  const yk5El=document.getElementById('YK5');
+  if(!yk5El)return;
+  const buYil=new Date().getFullYear();
+  const yillar=[buYil,buYil-1,buYil-2];
+  yk5El.innerHTML=`
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><div class="ct">📅 Aylık Toplu Yakıt Girişi</div></div>
+        <div class="fg"><label class="fl">Araç *</label>
+          <select class="fsel" id="YKA-P">
+            <option value="">Araç seçin...</option>
+            ${ARACLAR.map(a=>`<option value="${a.plaka}">${a.plaka} — ${a.tip}</option>`).join('')}
+          </select>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Yıl</label>
+            <select class="fsel" id="YKA-YIL">
+              ${yillar.map(y=>`<option value="${y}" ${y===buYil?'selected':''}>${y}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Birim</label>
+            <select class="fsel" id="YKA-BIRIM">
+              <option value="litre">Litre</option>
+              <option value="tutar">Tutar (₺)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          ${['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'].map((ay,i)=>`
+            <div class="fg">
+              <label class="fl">${ay}</label>
+              <input class="fi" id="YKA-${i+1}" type="number" min="0" placeholder="0">
+            </div>`).join('')}
+        </div>
+        <button class="fsub" onclick="addAylikYakit()">◈ AYLIK YAKITLARI KAYDET</button>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ct">📊 Araç Bazlı Yıllık Özet</div></div>
+        <div class="fg"><label class="fl">Araç</label>
+          <select class="fsel" id="YKA-OZ-P" onchange="renderYillikOzet()">
+            <option value="">Araç seçin...</option>
+            ${ARACLAR.map(a=>`<option value="${a.plaka}">${a.plaka}</option>`).join('')}
+          </select>
+        </div>
+        <div id="YKA-OZET" style="margin-top:8px"></div>
+      </div>
+    </div>`;
+}
+
+function addAylikYakit(){
+  const plaka=document.getElementById('YKA-P')?.value;
+  const yil=document.getElementById('YKA-YIL')?.value;
+  const birim=document.getElementById('YKA-BIRIM')?.value;
+  if(!plaka){toast('⚠️','Araç seçin!');return;}
+  let eklenen=0;
+  const aylar=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  const ayAdi=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  aylar.forEach((ay,i)=>{
+    const val=parseFloat(document.getElementById('YKA-'+(i+1))?.value||0);
+    if(val>0){
+      const tarih=yil+'-'+ay+'-01';
+      const kayit={
+        id:'yka'+Date.now()+'_'+i,
+        plaka,
+        tarih,
+        ay:ayAdi[i],
+        yil:parseInt(yil),
+        litre:birim==='litre'?val:0,
+        tutar:birim==='tutar'?val:0,
+        tip:'Aylık',
+        aciklama:ayAdi[i]+' '+yil+' aylık yakıt'
+      };
+      YAKITLAR.push(kayit);
+      fbSave('yakitlar',kayit.id,kayit);
+      eklenen++;
+    }
+  });
+  if(eklenen>0){
+    toast('⛽',`${eklenen} aylık yakıt kaydedildi!`);
+    renderYillikOzet();
+    // Input'ları temizle
+    for(let i=1;i<=12;i++){
+      const el=document.getElementById('YKA-'+i);
+      if(el)el.value='';
+    }
+  } else {
+    toast('⚠️','En az bir ay için değer girin!');
+  }
+}
+
+function renderYillikOzet(){
+  const plaka=document.getElementById('YKA-OZ-P')?.value;
+  const ozEl=document.getElementById('YKA-OZET');
+  if(!ozEl)return;
+  if(!plaka){ozEl.innerHTML='<div style="color:var(--t3);font-size:11px;text-align:center;padding:12px">Araç seçin</div>';return;}
+  const ayAdi=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const buYil=new Date().getFullYear();
+  const yillikData=ayAdi.map((ay,i)=>{
+    const ayNo=String(i+1).padStart(2,'0');
+    const toplam=YAKITLAR
+      .filter(y=>y.plaka===plaka&&y.tarih?.startsWith(buYil+'-'+ayNo))
+      .reduce((s,y)=>s+(y.litre||0),0);
+    const tutarTop=YAKITLAR
+      .filter(y=>y.plaka===plaka&&y.tarih?.startsWith(buYil+'-'+ayNo))
+      .reduce((s,y)=>s+(y.tutar||0),0);
+    return{ay,litre:toplam,tutar:tutarTop};
+  });
+  const maxL=Math.max(...yillikData.map(d=>d.litre),1);
+  ozEl.innerHTML=yillikData.map(d=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="width:40px;font-size:10px;color:var(--t3);text-align:right;flex-shrink:0">${d.ay.slice(0,3)}</div>
+      <div style="flex:1;height:18px;background:var(--s3);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${d.litre?Math.max(4,d.litre/maxL*100):0}%;background:linear-gradient(90deg,var(--g),#00aaff);border-radius:4px;transition:width .5s"></div>
+      </div>
+      <div style="font-size:10px;font-family:var(--mono);color:${d.litre?'var(--g)':'var(--t3)'};width:60px;text-align:right">${d.litre?d.litre+'L':'—'}</div>
+      ${d.tutar?`<div style="font-size:9px;color:var(--a);width:55px;text-align:right">${fmtTL(d.tutar)}</div>`:''}
+    </div>`).join('');
 }
 function ykTab(el,id){const cnt=document.getElementById('CNT');if(cnt)cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc){tc.classList.add('on');tc.style.display='block';}}
 function ykSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Kayıt bulunamadı</td></tr>`;
@@ -1766,6 +1982,115 @@ return list.map(y=>`<tr><td class="mono muted">${fmtD(y.tarih)}</td><td class="m
 function ykFiltre(){const ar=(document.getElementById('YK-F')?.value||'').toLowerCase();const ay=document.getElementById('YK-AY')?.value||'';const f=YAKITLAR.filter(y=>(!ar||y.plaka?.toLowerCase().includes(ar))&&(!ay||y.tarih?.startsWith(ay)));const tb=document.getElementById('YK-TB');if(tb)tb.innerHTML=ykSatir(f);}
 function addYakit(){const aId=document.getElementById('YK-A').value;const litre=parseFloat(document.getElementById('YK-L').value)||0;if(!aId||!litre){toast('⚠️','Araç ve litre zorunlu!');return;}const arac=ARACLAR.find(a=>a.id===aId);const yk={id:uid(),tarih:document.getElementById('YK-T').value||today(),plaka:arac?.plaka||'?',arac_id:aId,arac_tip:arac?.tip||'?',litre,personel:document.getElementById('YK-P').value,bolge:document.getElementById('YK-B').value,sayac:parseFloat(document.getElementById('YK-C').value)||0,not:document.getElementById('YK-N').value,kullanici:CU.username};YAKITLAR.unshift(yk);fbSave('yakitlar',yk.id,yk);toast('⛽',`${arac?.plaka} — ${litre}L kaydedildi!`);['YK-L','YK-B','YK-C','YK-N'].forEach(x=>{const el=document.getElementById(x);if(el)el.value=el.type==='number'?'0':'';});rYakit();}
 function ykX(id){if(!confirm('Silinecek?'))return;const i=YAKITLAR.findIndex(y=>y.id===id);if(i>=0){fbDel('yakitlar',id);YAKITLAR.splice(i,1);}toast('◈','Silindi!');rYakit();}
+const AYLAR_TR=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+function ykAylikDoldur(){
+  const plaka=document.getElementById('YKA-PLAKA')?.value;
+  const yil=parseInt(document.getElementById('YKA-YIL')?.value||2026);
+  const container=document.getElementById('YKA-AYLAR');
+  const ozet=document.getElementById('YKA-OZET');
+  if(!plaka||!container)return;
+
+  // Mevcut aylık verileri bul
+  const mevcutVeriler={};
+  YAKITLAR.filter(y=>y.plaka===plaka&&y.tarih?.startsWith(yil+'')).forEach(y=>{
+    const ay=parseInt(y.tarih?.slice(5,7));
+    if(!mevcutVeriler[ay])mevcutVeriler[ay]={litre:0,tutar:0};
+    if(y.tip==='aylik'){
+      mevcutVeriler[ay].litre=y.litre||0;
+      mevcutVeriler[ay].tutar=y.tutar||0;
+    } else {
+      mevcutVeriler[ay].litre+=(y.litre||0);
+      mevcutVeriler[ay].tutar+=(y.tutar||0);
+    }
+  });
+
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  AYLAR_TR.forEach((ay,i)=>{
+    const m=i+1;
+    const mv=mevcutVeriler[m]||{litre:0,tutar:0};
+    html+=`<div style="background:var(--s3);border-radius:8px;padding:10px;border:1px solid var(--bdr)">
+      <div style="font-size:10px;font-weight:700;color:var(--g);margin-bottom:6px">${ay} ${yil}</div>
+      <div style="display:flex;gap:6px">
+        <div class="fg" style="flex:1;margin:0">
+          <label class="fl" style="font-size:9px">Litre</label>
+          <input class="fi" id="YKA-L-${m}" type="number" min="0" step="0.1" value="${mv.litre||''}" placeholder="0" style="padding:5px 8px;font-size:11px">
+        </div>
+        <div class="fg" style="flex:1;margin:0">
+          <label class="fl" style="font-size:9px">Tutar (₺)</label>
+          <input class="fi" id="YKA-T-${m}" type="number" min="0" step="0.01" value="${mv.tutar||''}" placeholder="0" style="padding:5px 8px;font-size:11px">
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  container.innerHTML=html;
+
+  // Yıllık özet
+  const topLitre=Object.values(mevcutVeriler).reduce((s,v)=>s+(v.litre||0),0);
+  const topTutar=Object.values(mevcutVeriler).reduce((s,v)=>s+(v.tutar||0),0);
+  const ayliOrt=topLitre/Math.max(Object.keys(mevcutVeriler).length,1);
+  ozet.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--s3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--g)">${fmtN(Math.round(topLitre))}</div>
+        <div style="font-size:9px;color:var(--t3)">TOPLAM LİTRE</div>
+      </div>
+      <div style="background:var(--s3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:18px;font-weight:800;color:var(--a)">${fmtTL(topTutar)}</div>
+        <div style="font-size:9px;color:var(--t3)">TOPLAM TUTAR</div>
+      </div>
+    </div>
+    <div style="background:var(--s3);border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:14px;font-weight:700;color:var(--b)">${fmtN(Math.round(ayliOrt))} L</div>
+      <div style="font-size:9px;color:var(--t3)">AYLIK ORTALAMA</div>
+    </div>
+    <div style="margin-top:12px">
+      ${AYLAR_TR.map((ay,i)=>{
+        const m=i+1;
+        const mv=mevcutVeriler[m];
+        if(!mv||!mv.litre)return'';
+        const yuzde=Math.round(mv.litre/Math.max(topLitre,1)*100);
+        return `<div style="margin-bottom:5px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px">
+            <span>${ay}</span><span style="color:var(--g)">${fmtN(mv.litre)} L</span>
+          </div>
+          <div style="height:5px;background:var(--s4);border-radius:3px">
+            <div style="height:100%;width:${yuzde}%;background:var(--g);border-radius:3px"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function ykAylikKaydet(){
+  const plaka=document.getElementById('YKA-PLAKA')?.value;
+  const yil=parseInt(document.getElementById('YKA-YIL')?.value||2026);
+  if(!plaka){toast('⚠️','Araç seçin!');return;}
+  let kaydedilen=0;
+  AYLAR_TR.forEach((_,i)=>{
+    const m=i+1;
+    const litre=parseFloat(document.getElementById(`YKA-L-${m}`)?.value||0);
+    const tutar=parseFloat(document.getElementById(`YKA-T-${m}`)?.value||0);
+    if(!litre&&!tutar)return;
+    // Mevcut aylık kaydı bul veya oluştur
+    const tarih=`${yil}-${String(m).padStart(2,'0')}-01`;
+    const mevcutIdx=YAKITLAR.findIndex(y=>y.plaka===plaka&&y.tarih===tarih&&y.tip==='aylik');
+    if(mevcutIdx>=0){
+      YAKITLAR[mevcutIdx].litre=litre;
+      YAKITLAR[mevcutIdx].tutar=tutar;
+      fbSave('yakitlar',YAKITLAR[mevcutIdx].id,YAKITLAR[mevcutIdx]);
+    } else {
+      const yeni={id:uid(),plaka,tarih,litre,tutar,tip:'aylik',ay:AYLAR_TR[i],yil,personel:'',istasyon:'Aylık Giriş',km:0};
+      YAKITLAR.push(yeni);
+      fbSave('yakitlar',yeni.id,yeni);
+    }
+    kaydedilen++;
+  });
+  toast('⛽',`${kaydedilen} aylık yakıt verisi kaydedildi!`);
+  ykAylikDoldur();
+}
+
 function rYakitG(){rYakit();setTimeout(()=>ykTab(document.querySelectorAll('.tab-btn')[1],'YK2'),100);}
 function expYakit(){const h='Tarih,Plaka,Tip,Litre,Personel,Bölge\n';dlCSV(h+YAKITLAR.map(y=>`${y.tarih},${y.plaka},${y.arac_tip||''},${y.litre},${y.personel||''},${y.bolge||''}`).join('\n'),'yakit_kayitlari');}
 /* ============================================================
@@ -2393,6 +2718,7 @@ function rSurucu(){
             </div>`).join('')}
         </div>
       </div>
+    <div class="tab-c" id="YK5"></div>
     </div>
   `;
 }
@@ -3719,106 +4045,7 @@ function tumBildirimOku(){
 /* BAŞLAT */
 checkSession();
 
-// Login arka plan animasyonu
-(function(){
-  const canvas=document.getElementById('LOGIN-BG');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  let W=canvas.width=window.innerWidth;
-  let H=canvas.height=window.innerHeight;
-  window.addEventListener('resize',()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;});
 
-  // Araçlar
-  const trucks=Array.from({length:8},(_,i)=>({
-    x:Math.random()*W,
-    y:H*0.3+Math.random()*H*0.5,
-    speed:0.3+Math.random()*0.5,
-    size:18+Math.random()*14,
-    lane:i%3,
-    opacity:0.04+Math.random()*0.06
-  }));
-
-  // Yol çizgileri
-  const roads=[0.35,0.55,0.75].map(y=>({y:H*y,speed:0.8}));
-
-  // Partiküller
-  const particles=Array.from({length:60},()=>({
-    x:Math.random()*W,
-    y:Math.random()*H,
-    r:1+Math.random()*2,
-    speed:0.2+Math.random()*0.4,
-    opacity:0.03+Math.random()*0.07
-  }));
-
-  function drawTruck(x,y,size,opacity){
-    ctx.save();
-    ctx.globalAlpha=opacity;
-    ctx.strokeStyle='#00ff88';
-    ctx.lineWidth=1.5;
-    ctx.shadowColor='#00ff88';
-    ctx.shadowBlur=8;
-    // Kamyon gövdesi
-    ctx.strokeRect(x,y-size*0.4,size*1.4,size*0.5);
-    // Kabin
-    ctx.strokeRect(x+size*1.1,y-size*0.55,size*0.4,size*0.65);
-    // Tekerlekler
-    ctx.beginPath();ctx.arc(x+size*0.3,y+size*0.15,size*0.15,0,Math.PI*2);ctx.stroke();
-    ctx.beginPath();ctx.arc(x+size*1.1,y+size*0.15,size*0.15,0,Math.PI*2);ctx.stroke();
-    ctx.restore();
-  }
-
-  function animate(){
-    ctx.clearRect(0,0,W,H);
-
-    // Gradient arka plan
-    const grad=ctx.createLinearGradient(0,0,W,H);
-    grad.addColorStop(0,'rgba(6,10,20,0.98)');
-    grad.addColorStop(1,'rgba(10,18,32,0.98)');
-    ctx.fillStyle=grad;
-    ctx.fillRect(0,0,W,H);
-
-    // Yol çizgileri
-    roads.forEach(r=>{
-      ctx.save();
-      ctx.globalAlpha=0.06;
-      ctx.strokeStyle='#4488ff';
-      ctx.lineWidth=1;
-      ctx.setLineDash([30,20]);
-      ctx.beginPath();ctx.moveTo(0,r.y);ctx.lineTo(W,r.y);ctx.stroke();
-      ctx.restore();
-    });
-
-    // Partiküller
-    particles.forEach(p=>{
-      ctx.save();
-      ctx.globalAlpha=p.opacity;
-      ctx.fillStyle='#00ff88';
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-      p.x-=p.speed;
-      if(p.x<-5)p.x=W+5;
-    });
-
-    // Grid çizgileri
-    ctx.save();
-    ctx.globalAlpha=0.025;
-    ctx.strokeStyle='#4488ff';
-    ctx.lineWidth=0.5;
-    for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-    for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-    ctx.restore();
-
-    // Kamyonlar
-    trucks.forEach(t=>{
-      drawTruck(t.x,t.y,t.size,t.opacity);
-      t.x-=t.speed;
-      if(t.x<-t.size*2)t.x=W+t.size*2;
-    });
-
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
 </script>
 
 <div class="notif-dropdown" id="NDROP">
