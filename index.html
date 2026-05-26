@@ -2115,11 +2115,29 @@ function rBakim(){
         <div class="fg"><label class="fl">Kalan Saat</label><input class="fi" id="BK-K" type="number" min="0" value="500"></div></div>
         <div class="frow"><div class="fg"><label class="fl">Son Bakım</label><input class="fi" id="BK-S" type="date" value="${today()}"></div>
         <div class="fg"><label class="fl">Maliyet (₺)</label><input class="fi" id="BK-M" type="number" min="0" value="0"></div></div>
+        <div class="fg"><label class="fl">Bakım Yapan Firma</label><input class="fi" id="BK-FIRMA" placeholder="Firma adı (elle yazın)"></div>
+        <div class="fg"><label class="fl">Açıklama</label><input class="fi" id="BK-AC" placeholder="Bakım açıklaması..."></div>
+        <div class="fg"><label class="fl">Notlar</label><textarea class="fi" id="BK-NOT" style="height:70px;resize:vertical" placeholder="Detaylı notlar, yapılan işlemler..."></textarea></div>
         <button class="fsub" onclick="addBakim()">＋ BAKIM EKLE</button>
       </div>
     </div>`;
 }
-function addBakim(){const b={id:uid(),plaka:document.getElementById('BK-A').value,tip:document.getElementById('BK-T').value,periyot:parseInt(document.getElementById('BK-P').value)||500,kalan:parseInt(document.getElementById('BK-K').value)||500,son:document.getElementById('BK-S').value||today(),maliyet:parseFloat(document.getElementById('BK-M').value)||0,notlar:document.getElementById('BK-NOT')?.value||''};BAKIM_LIST.push(b);fbSave('bakim',b.id,b);toast('◈',`${b.plaka} — ${b.tip} eklendi!`);rBakim();}
+function addBakim(){
+  const plaka=document.getElementById('BK-A')?.value;
+  if(!plaka){toast('⚠️','Araç seçin!');return;}
+  const b={
+    id:uid(),
+    plaka,
+    tip:document.getElementById('BK-T')?.value||'Genel Bakım',
+    periyot:parseInt(document.getElementById('BK-P')?.value)||500,
+    kalan:parseInt(document.getElementById('BK-K')?.value)||500,
+    son:document.getElementById('BK-S')?.value||today(),
+    maliyet:parseFloat(document.getElementById('BK-M')?.value)||0,
+    firma:document.getElementById('BK-FIRMA')?.value||'',
+    aciklama:document.getElementById('BK-AC')?.value||'',
+    notlar:document.getElementById('BK-NOT')?.value||'',
+    durum:'Aktif'
+  };BAKIM_LIST.push(b);fbSave('bakim',b.id,b);toast('◈',`${b.plaka} — ${b.tip} eklendi!`);rBakim();}
 function bkmTam(i){if(!confirm(`${BAKIM_LIST[i].plaka} — ${BAKIM_LIST[i].tip} tamamlandı mı?`))return;BAKIM_LIST[i].kalan=BAKIM_LIST[i].periyot;BAKIM_LIST[i].son=today();fbSave('bakim',BAKIM_LIST[i].id,BAKIM_LIST[i]);toast('✓','Bakım tamamlandı!');rBakim();}
 function bkmX(id){if(!confirm('Silinecek?'))return;const i=BAKIM_LIST.findIndex(b=>b.id===id);if(i>=0){fbDel('bakim',id);BAKIM_LIST.splice(i,1);}toast('◈','Silindi!');rBakim();}
 
