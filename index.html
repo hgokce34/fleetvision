@@ -2109,7 +2109,7 @@ function rBakim(){
     </div>
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">Bakım Takip Listesi</div></div>
-        <div class="prog-list">${BAKIM_LIST.map((b,i)=>{const p=Math.round((b.periyot-(b.kalan||0))/b.periyot*100);return`<div class="prog-item"><div class="prog-head"><span class="prog-name mono">${b.plaka} — ${b.tip}</span><div class="prog-right"><span class="muted" style="font-size:9px">Kalan: ${b.kalan}h · ${fmtD(b.son)}</span><span class="prog-pct" style="color:${bkmC(p)}">${p}%</span>${pill(p>80?'ACİL':p>60?'YAKIN':'NORMAL',bkmP(p))}<button class="ub ok" onclick="bkmTam(${i})" style="font-size:8px;padding:2px 6px">✓ Tamam</button><button class="ub del" onclick="bkmX('${b.id}')" style="font-size:8px;padding:2px 6px">✕</button></div></div><div class="prog-track"><div class="prog-bar" style="width:${p}%;background:${bkmC(p)}"></div></div></div>`;}).join('')||'<div class="muted">Bakım kaydı yok</div>'}</div>
+        <div class="prog-list">${BAKIM_LIST.map((b,i)=>{const p=Math.round((b.periyot-(b.kalan||0))/b.periyot*100);return`<div class="prog-item"><div class="prog-head"><span class="prog-name mono">${b.plaka} — ${b.tip}</span><div class="prog-right"><span class="muted" style="font-size:9px">Kalan: ${b.kalan}h · ${fmtD(b.son)}</span><span class="prog-pct" style="color:${bkmC(p)}">${p}%</span>${pill(p>80?'ACİL':p>60?'YAKIN':'NORMAL',bkmP(p))}<button class="ub" onclick="bkmDuzenle('${b.id}')" style="font-size:8px;padding:2px 6px;color:var(--b)">✎ Düzenle</button><button class="ub ok" onclick="bkmTam(${i})" style="font-size:8px;padding:2px 6px">✓ Tamam</button><button class="ub del" onclick="bkmX('${b.id}')" style="font-size:8px;padding:2px 6px">✕</button></div></div><div class="prog-track"><div class="prog-bar" style="width:${p}%;background:${bkmC(p)}"></div></div></div>`;}).join('')||'<div class="muted">Bakım kaydı yok</div>'}</div>
       </div>
       <div class="card"><div class="ch"><div class="ct">Bakım Kaydı Ekle</div></div>
         <div class="fg"><label class="fl">Araç *</label><select class="fsel" id="BK-A">${ARACLAR.map(a=>`<option value="${a.plaka}">${a.plaka} — ${a.tip}</option>`).join('')}</select></div>
@@ -2141,6 +2141,67 @@ function addBakim(){
     notlar:document.getElementById('BK-NOT')?.value||'',
     durum:'Aktif'
   };BAKIM_LIST.push(b);fbSave('bakim',b.id,b);toast('◈',`${b.plaka} — ${b.tip} eklendi!`);rBakim();}
+function bkmDuzenle(id){
+  const b=BAKIM_LIST.find(x=>x.id===id);
+  if(!b)return;
+  // Araç seçeneklerini doldur
+  const pSel=document.getElementById('BKM-ED-P');
+  if(pSel){
+    pSel.innerHTML=ARACLAR.map(a=>`<option value="${a.plaka}" ${a.plaka===b.plaka?'selected':''}>${a.plaka} — ${a.tip}</option>`).join('');
+  }
+  // Tip seçeneklerini doldur
+  const tSel=document.getElementById('BKM-ED-T');
+  if(tSel){
+    ['Yağ Değişimi','Filtre Değişimi','Genel Bakım','Motor Bakımı','Hidrolik Bakım','Fren Bakımı','Lastik Değişimi','Elektrik Kontrolü','Büyük Revizyon','Periyodik Bakım'].forEach(t=>{
+      const opt=document.createElement('option');
+      opt.value=t;opt.textContent=t;
+      if(t===b.tip)opt.selected=true;
+      tSel.appendChild(opt);
+    });
+  }
+  // Değerleri doldur
+  const g=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
+  g('BKM-ED-PR',b.periyot);
+  g('BKM-ED-K',b.kalan);
+  g('BKM-ED-S',b.son);
+  g('BKM-ED-M',b.maliyet);
+  g('BKM-ED-F',b.firma);
+  g('BKM-ED-AC',b.aciklama);
+  g('BKM-ED-NOT',b.notlar);
+  g('BKM-ED-ID',b.id);
+  // Modalı aç
+  const modal=document.getElementById('BKM-MODAL');
+  if(modal){modal.style.display='flex';}
+}
+
+function bkmModalKapat(){
+  const modal=document.getElementById('BKM-MODAL');
+  if(modal)modal.style.display='none';
+}
+
+function bkmKaydet(){
+  const id=document.getElementById('BKM-ED-ID')?.value;
+  const i=BAKIM_LIST.findIndex(b=>b.id===id);
+  if(i<0)return;
+  const g=eid=>document.getElementById(eid)?.value||'';
+  BAKIM_LIST[i]={
+    ...BAKIM_LIST[i],
+    plaka:g('BKM-ED-P'),
+    tip:g('BKM-ED-T'),
+    periyot:parseInt(g('BKM-ED-PR'))||500,
+    kalan:parseInt(g('BKM-ED-K'))||0,
+    son:g('BKM-ED-S'),
+    maliyet:parseFloat(g('BKM-ED-M'))||0,
+    firma:g('BKM-ED-F'),
+    aciklama:g('BKM-ED-AC'),
+    notlar:g('BKM-ED-NOT'),
+  };
+  fbSave('bakim',id,BAKIM_LIST[i]);
+  toast('✓','Bakım kaydı güncellendi!');
+  bkmModalKapat();
+  rBakim();
+}
+
 function bkmTam(i){if(!confirm(`${BAKIM_LIST[i].plaka} — ${BAKIM_LIST[i].tip} tamamlandı mı?`))return;BAKIM_LIST[i].kalan=BAKIM_LIST[i].periyot;BAKIM_LIST[i].son=today();fbSave('bakim',BAKIM_LIST[i].id,BAKIM_LIST[i]);toast('✓','Bakım tamamlandı!');rBakim();}
 function bkmX(id){if(!confirm('Silinecek?'))return;const i=BAKIM_LIST.findIndex(b=>b.id===id);if(i>=0){fbDel('bakim',id);BAKIM_LIST.splice(i,1);}toast('◈','Silindi!');rBakim();}
 
@@ -4075,6 +4136,37 @@ checkSession();
     <span class="ca" onclick="tumBildirimOku()">Tümünü Oku</span>
   </div>
   <div id="NOTIF-LIST"></div>
+</div>
+
+<!-- BAKIM DÜZENLEME MODALI -->
+<div id="BKM-MODAL" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--s2);border:1px solid var(--bdr2);border-radius:16px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-weight:700;font-size:14px">✎ Bakım Kaydını Düzenle</div>
+      <button onclick="bkmModalKapat()" style="background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div class="fg"><label class="fl">Araç</label>
+      <select class="fsel" id="BKM-ED-P"></select>
+    </div>
+    <div class="fg"><label class="fl">Bakım Tipi</label>
+      <select class="fsel" id="BKM-ED-T">
+        ${['Yağ Değişimi','Filtre Değişimi','Genel Bakım','Motor Bakımı','Hidrolik Bakım','Fren Bakımı','Lastik Değişimi','Elektrik Kontrolü','Büyük Revizyon','Periyodik Bakım'].map(t=>`<option>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg"><label class="fl">Periyot (Saat)</label><input class="fi" id="BKM-ED-PR" type="number" min="0"></div>
+      <div class="fg"><label class="fl">Kalan Saat</label><input class="fi" id="BKM-ED-K" type="number" min="0"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="fg"><label class="fl">Son Bakım Tarihi</label><input class="fi" id="BKM-ED-S" type="date"></div>
+      <div class="fg"><label class="fl">Maliyet (₺)</label><input class="fi" id="BKM-ED-M" type="number" min="0"></div>
+    </div>
+    <div class="fg"><label class="fl">Bakım Yapan Firma</label><input class="fi" id="BKM-ED-F" placeholder="Firma adı"></div>
+    <div class="fg"><label class="fl">Açıklama</label><input class="fi" id="BKM-ED-AC" placeholder="Açıklama..."></div>
+    <div class="fg"><label class="fl">Notlar</label><textarea class="fi" id="BKM-ED-NOT" style="height:70px;resize:vertical" placeholder="Detaylı notlar..."></textarea></div>
+    <input type="hidden" id="BKM-ED-ID">
+    <button class="fsub" onclick="bkmKaydet()">◈ KAYDET</button>
+  </div>
 </div>
 </body>
 </html>
