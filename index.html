@@ -529,6 +529,33 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
 #LM2 { right: 12%; filter: drop-shadow(0 0 6px rgba(0,170,255,0.6)); }
 .lb { position: relative; z-index: 10; }
 .lb { box-shadow: 0 0 40px rgba(0,255,136,0.1), 0 20px 60px rgba(0,0,0,0.5) !important; }
+
+/* VIEWER - sadece görüntüleme */
+body.viewer-mode .fsub,
+body.viewer-mode button[onclick*="add"],
+body.viewer-mode button[onclick*="Add"],
+body.viewer-mode .ub.del,
+body.viewer-mode .ub.ok,
+body.viewer-mode button[onclick*="X("],
+body.viewer-mode button[onclick*="Tam("],
+body.viewer-mode button[onclick*="Duzenle"],
+body.viewer-mode button[onclick*="kaydet"],
+body.viewer-mode button[onclick*="Kaydet"],
+body.viewer-mode .ca[onclick*="exp"] {
+  display: none !important;
+}
+body.viewer-mode .fi,
+body.viewer-mode .fsel,
+body.viewer-mode textarea.fi {
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+}
+body.viewer-mode .card:has(.fsub) .ch::after {
+  content: '👁 Görüntüleme Modu';
+  font-size: 9px;
+  color: var(--t3);
+  font-family: var(--mono);
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -1275,6 +1302,7 @@ function logout(){
   Object.values(CH).forEach(c=>{try{c.destroy();}catch(e){}});CH={};
 }
 function isA(){return CU?.rol==='admin';}
+function isViewer(){return CU?.rol==='viewer';}
 function checkSession(){
   applyTheme(THEME);
   const s=localStorage.getItem('fv_session');
@@ -1318,6 +1346,12 @@ function initApp(){
   const un=document.getElementById('UNM');if(un)un.textContent=CU.ad;
   const ur=document.getElementById('UROLE');if(ur){ur.textContent=CU.gorev;ur.className='sb-role '+(isA()?'role-a':'role-u');}
   fillOpModal();
+  // Viewer mode CSS class ekle
+  if(isViewer()){
+    document.body.classList.add('viewer-mode');
+  } else {
+    document.body.classList.remove('viewer-mode');
+  }
   // Firebase yüklenince sayfayı aç
   const startPage=()=>{
     fbLoad().then(()=>{go(isA()?'panel':'arsiv',null);}).catch(()=>{go(isA()?'panel':'arsiv',null);});
@@ -2759,8 +2793,23 @@ function msTab(el,id){
   if(id==='MS5'){
     const tc5=document.getElementById('MS5');
     if(tc5){
-      const rows=izinHaklariHesapla();
-      tc5.innerHTML='<div class="card"><div class="ch"><div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div><div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div></div><div class="tw"><table><thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      tc5.innerHTML='<div class="card"><div style="text-align:center;padding:20px;color:var(--t3)">Yükleniyor...</div></div>';
+      // Firebase yüklendikten sonra render et
+      const doRender=()=>{
+        const rows=izinHaklariHesapla();
+        tc5.innerHTML='<div class="card"><div class="ch"><div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div><div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div></div><div class="tw"><table><thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+      };
+      if(PERSONEL.length>0){
+        doRender();
+      } else {
+        // Personel henüz yüklenmediyse bekle
+        setTimeout(()=>{
+          fbGetAll('personel').then(per=>{
+            if(per.length)PERSONEL.splice(0,PERSONEL.length,...per);
+            doRender();
+          }).catch(()=>doRender());
+        },500);
+      }
     }
   }
 }
