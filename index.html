@@ -909,6 +909,7 @@ const NAV_A=[
   {s:'İNSAN KAYNAKLARI'},{id:'personel',i:'👥',l:'Personel'},
   {id:'surucu',i:'🧑‍✈️',l:'Sürücü Takibi'},
   {id:'mesai',i:'🕐',l:'Mesai & İzin'},
+  {id:'izinhakki',i:'📋',l:'İzin Hakları'},
   {s:'FİNANS'},{id:'fatura',i:'🧾',l:'Faturalar'},
   {id:'tahsilat',i:'💳',l:'Tahsilat Yönetimi'},
   {id:'gelir_gider',i:'💰',l:'Gelir / Gider'},
@@ -938,7 +939,7 @@ const NAV_U=[
   {s:'BİLGİ'},{id:'arac',i:'🚛',l:'Araç Listesi'},
   {id:'arsiv',i:'📂',l:'Kayıtlarım'},
 ];
-const TITLES={panel:'Ana Panel',surucu:'Sürücü Takibi',maliyet:'Maliyet Analizi',sigorta:'Sigorta & Poliçe',ekspertiz:'Araç Ekspertiz',ustyapi:'Üst Yapı Takibi',fatura:'Faturalar',tahsilat:'Tahsilat Yönetimi',gelir_gider:'Gelir / Gider',satin_alma:'Satın Alma',arac_satis:'Araç Satış',arac:'Araç Yönetimi',yakit:'Yakıt Yönetimi',bakim:'Bakım Takip',ariza:'Arıza Merkezi',personel:'Personel Yönetimi',mesai:'Mesai & İzin',hakedis:'Hakediş & Proje',depo:'Depo Yönetimi',lastik:'Lastik Yönetimi',yedek:'Yedek Parça',ai:'AI Analitik',arsiv:'Arşiv',raporlar:'Raporlar',musteri:'Müşteri Yönetimi',sozlesme:'Sözleşme Yönetimi',ceza:'Ceza Yönetimi',kaza:'Kaza & Hasar',harita:'Canlı Harita',kullanici:'Kullanıcı Yönetimi',ayarlar:'Sistem Ayarları',op_kayit:'Yeni Operasyon',yakit_g:'Yakıt Girişi'};
+const TITLES={panel:'Ana Panel',surucu:'Sürücü Takibi',maliyet:'Maliyet Analizi',sigorta:'Sigorta & Poliçe',ekspertiz:'Araç Ekspertiz',ustyapi:'Üst Yapı Takibi',fatura:'Faturalar',izinhakki:'İzin Hakları',tahsilat:'Tahsilat Yönetimi',gelir_gider:'Gelir / Gider',satin_alma:'Satın Alma',arac_satis:'Araç Satış',arac:'Araç Yönetimi',yakit:'Yakıt Yönetimi',bakim:'Bakım Takip',ariza:'Arıza Merkezi',personel:'Personel Yönetimi',mesai:'Mesai & İzin',hakedis:'Hakediş & Proje',depo:'Depo Yönetimi',lastik:'Lastik Yönetimi',yedek:'Yedek Parça',ai:'AI Analitik',arsiv:'Arşiv',raporlar:'Raporlar',musteri:'Müşteri Yönetimi',sozlesme:'Sözleşme Yönetimi',ceza:'Ceza Yönetimi',kaza:'Kaza & Hasar',harita:'Canlı Harita',kullanici:'Kullanıcı Yönetimi',ayarlar:'Sistem Ayarları',op_kayit:'Yeni Operasyon',yakit_g:'Yakıt Girişi'};
 
 /* ============================================================
    SAAT & TEMA
@@ -1415,7 +1416,7 @@ function go(page,el){
   const pages={
     panel:rPanel,harita:rHarita,surucu:rSurucu,maliyet:rMaliyet,musteri:rMusteri,sigorta:rSigorta,ekspertiz:rEkspertiz,ustyapi:rUstyapi,fatura:rFatura,tahsilat:rTahsilat,gelir_gider:rGelir_gider,satin_alma:rSatin_alma,arac_satis:rArac_satis,sozlesme:rSozlesme,
     ceza:rCeza,kaza:rKaza,raporlar:rRaporlar,arac:rArac,yakit:rYakit,
-    bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,
+    bakim:rBakim,ariza:rAriza,personel:rPersonel,mesai:rMesai,izinhakki:rIzinHakki,
     hakedis:rHakedis,depo:rDepo,stok:rDepo,lastik:rLastik,yedek:rYedek,
     ai:rAI,arsiv:rArsiv,kullanici:rKul,ayarlar:rAyarlar,
     op_kayit:function(){openMB('OM');},yakit_g:rYakitG
@@ -2664,6 +2665,51 @@ function expPer(){const h='Ad Soyad,Görev,Vardiya,Tel,Durum,İşe Giriş\n';dlC
 /* ============================================================
    7. MESAİ & İZİN
 ============================================================ */
+function rIzinHakki(){
+  const rows = PERSONEL.length > 0 ? izinHaklariHesapla() : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--t3)">Personel bulunamadı. Önce personel ekleyin.</td></tr>';
+  document.getElementById('CNT').innerHTML = `
+    <div class="card">
+      <div class="ch">
+        <div class="ct">📋 Yıllık İzin Hakları (İş Kanunu 53. Madde)</div>
+        <div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün &nbsp;|&nbsp; 5-15 yıl: 20 gün &nbsp;|&nbsp; 15+ yıl: 26 gün &nbsp;|&nbsp; 50+ yaş: min 20 gün</div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr>
+          <th>PERSONEL</th>
+          <th>İŞE GİRİŞ</th>
+          <th>KIDEM</th>
+          <th>YASAL HAK</th>
+          <th>KULLANILAN</th>
+          <th>KALAN</th>
+          <th>DURUM</th>
+        </tr></thead>
+        <tbody id="IZIN-TBODY">${rows}</tbody>
+      </table></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="ch"><div class="ct">ℹ️ Bilgi</div></div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.8">
+        <div>• İzin hesabı personelin işe giriş tarihine göre otomatik yapılır.</div>
+        <div>• Kullanılan izin, İzin modülündeki <b>onaylanan</b> izin kayıtlarından hesaplanır.</div>
+        <div>• 50+ yaş için doğum tarihi personel kaydında girilmelidir.</div>
+        <div>• İzin eklemek için <b>Mesai & İzin</b> modülünü kullanın.</div>
+      </div>
+    </div>
+  `;
+  // Firebase'den personel yüklenmediyse bekle
+  if(PERSONEL.length === 0){
+    setTimeout(()=>{
+      fbGetAll('personel').then(per=>{
+        if(per.length){
+          PERSONEL.splice(0,PERSONEL.length,...per);
+          const tbody=document.getElementById('IZIN-TBODY');
+          if(tbody)tbody.innerHTML=izinHaklariHesapla();
+        }
+      }).catch(e=>console.warn(e));
+    },800);
+  }
+}
+
 function rMesai(){
   document.getElementById('CNT').innerHTML=`
     <div class="tab-bar">
