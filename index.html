@@ -3448,7 +3448,12 @@ function rSurucu(){
           <div class="fg"><label class="fl">Sürücü *</label>
             <select class="fsel" id="SG-S">
               <option value="">Seçin...</option>
-              ${surucular.map(p=>`<option value="${p.id}">${p.ad}</option>`).join('')}
+              ${PERSONEL.filter(p=>p.surucu).length>0?
+                '<optgroup label="🧑‍✈️ Sürücüler">'+PERSONEL.filter(p=>p.surucu&&p.durum!=="Pasif").map(p=>`<option value="${p.id}">${p.ad} ${p.ehliyet?'('+p.ehliyet+')':''}</option>`).join('')+'</optgroup>':''
+              }
+              <optgroup label="👥 Tüm Personel">
+                ${PERSONEL.filter(p=>!p.surucu&&p.durum!=="Pasif").map(p=>`<option value="${p.id}">${p.ad} — ${p.gorev||''}</option>`).join('')}
+              </optgroup>
             </select>
           </div>
           <div class="fg"><label class="fl">Araç *</label>
