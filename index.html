@@ -2424,7 +2424,17 @@ function renderYillikOzet(){
       ${d.tutar?`<div style="font-size:9px;color:var(--a);width:55px;text-align:right">${fmtTL(d.tutar)}</div>`:''}
     </div>`).join('');
 }
-function ykTab(el,id){const cnt=document.getElementById('CNT');if(cnt)cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));if(cnt)cnt.querySelectorAll('.tab-c').forEach(c=>c.classList.remove('on'));el.classList.add('on');const tc=document.getElementById(id);if(tc){tc.classList.add('on');tc.style.display='block';}}
+function ykTab(el,id){
+  const cnt=document.getElementById('CNT');
+  if(cnt){
+    cnt.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+    cnt.querySelectorAll('.tab-c').forEach(t=>{t.classList.remove('on');t.style.display='none';});
+  }
+  el.classList.add('on');
+  const tc=document.getElementById(id);
+  if(tc){tc.classList.add('on');tc.style.display='block';}
+  if(id==='YK5') renderYK5();
+}
 function ykSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Kayıt bulunamadı</td></tr>`;
 return list.map(y=>`<tr><td class="mono muted">${fmtD(y.tarih)}</td><td class="mono bold green">${y.plaka}</td><td class="muted">${y.arac_tip||'?'}</td><td class="mono bold amber">${fmtN(y.litre)} L</td><td>${y.personel||'—'}</td><td class="muted">${y.bolge||'—'}</td><td><button class="ub del" onclick="ykX('${y.id}')">✕</button></td></tr>`).join('');}
 function ykFiltre(){const ar=(document.getElementById('YK-F')?.value||'').toLowerCase();const ay=document.getElementById('YK-AY')?.value||'';const f=YAKITLAR.filter(y=>(!ar||y.plaka?.toLowerCase().includes(ar))&&(!ay||y.tarih?.startsWith(ay)));const tb=document.getElementById('YK-TB');if(tb)tb.innerHTML=ykSatir(f);}
