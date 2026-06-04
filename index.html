@@ -2779,7 +2779,7 @@ function rMesai(){
   CH.msPie=mkDonut('MS-PIE',vT,vT.map(v=>PERSONEL.filter(p=>p.vardiya===v).length));
 }
 function izinHakkiHesapla(iseGiris, dogumTarihi){
-  if(!iseGiris)return{yil:0,hak:14,kullanilan:0,kalan:14};
+  if(!iseGiris)return{yil:0,hak:0,yillikHak:0,yas:0};
   const bugun=new Date();
   const giris=new Date(iseGiris);
   const yil=Math.floor((bugun-giris)/(365.25*24*3600*1000));
@@ -2789,42 +2789,69 @@ function izinHakkiHesapla(iseGiris, dogumTarihi){
     const dt=new Date(dogumTarihi);
     yas=Math.floor((bugun-dt)/(365.25*24*3600*1000));
   }
-  // İş Kanunu 53. Madde
-  let hak=14;
-  if(yil>=15) hak=26;
-  else if(yil>=5) hak=20;
-  else if(yil>=1) hak=14;
-  else hak=0; // 1 yıl dolmadı
+  // Bu yıl kazanılan hak (İş Kanunu 53. Madde)
+  let yillikHak=0;
+  if(yil>=15) yillikHak=26;
+  else if(yil>=5) yillikHak=20;
+  else if(yil>=1) yillikHak=14;
+  else yillikHak=0;
   // 50+ yaş minimum 20 gün
-  if(yas>=50&&hak<20) hak=20;
-  return{yil,hak,yas};
+  if(yas>=50&&yillikHak<20&&yillikHak>0) yillikHak=20;
+  // Toplam birikmiş hak (her yıl kazanılan x çalışılan yıl)
+  // Basit hesap: şu anki yıla göre toplam hak
+  let hak=0;
+  for(let i=1;i<=yil;i++){
+    if(i>=15) hak+=26;
+    else if(i>=5) hak+=20;
+    else hak+=14;
+  }
+  if(yas>=50&&yil>=1) hak=Math.max(hak, yil*20);
+  return{yil,hak,yillikHak,yas};
 }
 
 function izinHaklariHesapla(){
-  if(!PERSONEL.length) return '<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Personel bulunamadı</td></tr>';
+  if(!PERSONEL.length) return '<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:14px">Personel bulunamadı</td></tr>';
   return PERSONEL.map(p=>{
-    const {yil,hak,yas}=izinHakkiHesapla(p.ise_giris, p.dogum_tarihi);
+    const {yil,hak,yillikHak,yas}=izinHakkiHesapla(p.ise_giris, p.dogum_tarihi);
     // Bu personelin kullandığı izin günleri
-    const kullanilan=IZIN_LIST
-      .filter(iz=>iz.per_id===p.id&&iz.durum==='Onaylandı')
+    const izinKullanilan=IZIN_LIST
+      .filter(iz=>(iz.per_id===p.id||iz.personel===p.ad)&&iz.durum==='Onaylandı')
       .reduce((s,iz)=>{
         if(!iz.baslangic||!iz.bitis)return s;
         const gun=Math.round((new Date(iz.bitis)-new Date(iz.baslangic))/(864e5))+1;
         return s+gun;
       },0);
-    const kalan=Math.max(0,hak-kullanilan);
-    const durum=hak===0?'⏳ Hak Kazanmadı':kalan===0?'❌ Tükendi':kalan<=3?'⚠️ Az Kaldı':'✅ Normal';
-    const durumRenk=hak===0?'var(--t3)':kalan===0?'var(--r)':kalan<=3?'var(--a)':'var(--g)';
+    // Manuel düzeltme varsa kullan
+    const manuelKullanilan=p.izin_kullanilan!=null?p.izin_kullanilan:izinKullanilan;
+    const manuelHak=p.izin_hakki_override!=null?p.izin_hakki_override:hak;
+    const kalan=Math.max(0,manuelHak-manuelKullanilan);
+    const durum=manuelHak===0?'⏳ Hak Kazanmadı':kalan===0?'❌ Tükendi':kalan<=3?'⚠️ Az Kaldı':'✅ Normal';
+    const durumRenk=manuelHak===0?'var(--t3)':kalan===0?'var(--r)':kalan<=3?'var(--a)':'var(--g)';
     return `<tr>
       <td class="bold">${p.ad}</td>
       <td class="mono muted">${p.ise_giris?new Date(p.ise_giris).toLocaleDateString('tr-TR'):'—'}</td>
       <td class="mono">${yil} yıl${yas?` · ${yas} yaş`:''}</td>
-      <td class="mono bold" style="color:var(--b)">${hak} gün</td>
-      <td class="mono" style="color:var(--r)">${kullanilan} gün</td>
+      <td class="mono" style="color:var(--t3);font-size:9px">${yillikHak} gün/yıl</td>
+      <td class="mono bold" style="color:var(--b);cursor:pointer" onclick="izinHakkiDuzenle('${p.id}','hak',${manuelHak})" title="Düzenle">${manuelHak} gün ✎</td>
+      <td class="mono" style="color:var(--r);cursor:pointer" onclick="izinHakkiDuzenle('${p.id}','kullanilan',${manuelKullanilan})" title="Düzenle">${manuelKullanilan} gün ✎</td>
       <td class="mono bold" style="color:${durumRenk}">${kalan} gün</td>
       <td><span class="pill" style="background:${durumRenk}20;color:${durumRenk}">${durum}</span></td>
     </tr>`;
   }).join('');
+}
+
+function izinHakkiDuzenle(perId, alan, mevcutDeger){
+  const yeniDeger=prompt(alan==='hak'?'Toplam izin hakkını girin (gün):':'Kullanılan izin gününü girin:',mevcutDeger);
+  if(yeniDeger===null)return;
+  const val=parseInt(yeniDeger);
+  if(isNaN(val)||val<0){alert('Geçersiz değer!');return;}
+  const i=PERSONEL.findIndex(p=>p.id===perId);
+  if(i<0)return;
+  if(alan==='hak') PERSONEL[i].izin_hakki_override=val;
+  else PERSONEL[i].izin_kullanilan=val;
+  fbSave('personel',perId,PERSONEL[i]);
+  toast('✓','İzin güncellendi!');
+  rIzinHakki();
 }
 
 function msTab(el,id){
@@ -2843,7 +2870,7 @@ function msTab(el,id){
       // Firebase yüklendikten sonra render et
       const doRender=()=>{
         const rows=izinHaklariHesapla();
-        tc5.innerHTML='<div class="card"><div class="ch"><div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div><div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div></div><div class="tw"><table><thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YASAL HAK</th><th>KULLANILAN</th><th>KALAN</th><th>DURUM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+        tc5.innerHTML='<div class="card"><div class="ch"><div class="ct">📋 Yıllık İzin Hakları (İş Kanunu)</div><div style="font-size:10px;color:var(--t3)">1-5 yıl: 14 gün | 5-15 yıl: 20 gün | 15+ yıl: 26 gün | 50+ yaş: min 20 gün</div></div><div class="tw"><table><thead><tr><th>PERSONEL</th><th>İŞE GİRİŞ</th><th>KIDEM</th><th>YIL/HAK</th><th>TOPLAM HAK ✎</th><th>KULLANILAN ✎</th><th>KALAN</th><th>DURUM</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
       };
       if(PERSONEL.length>0){
         doRender();
