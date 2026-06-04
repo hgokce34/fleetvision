@@ -2634,14 +2634,16 @@ function rPersonel(){
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">Personel Listesi</div><div class="ca" onclick="expPer()">CSV ↓</div><div class="ca" onclick="expXLS('personel')" style="color:var(--g)">XLS ↓</div></div>
         <div class="tw"><table><thead><tr><th>AD SOYAD</th><th>GÖREV</th><th>VARDİYA</th><th>TELEFON</th><th>DURUM</th><th>İŞE GİRİŞ</th><th>İŞLEM</th></tr></thead>
-        <tbody>${PERSONEL.map((p,i)=>`<tr>
-          <td class="bold">${p.ad}</td><td class="muted">${p.gorev}</td><td>${p.vardiya||'—'}</td>
-          <td class="mono muted">${p.tel||'—'}</td>
+        <tbody>${PERSONEL.map((p,i)=>`<tr style="cursor:pointer" onmouseover="this.style.background='var(--s3)'" onmouseout="this.style.background=''">
+          <td class="bold" onclick="perDuzenle('${p.id}')">${p.ad}</td>
+          <td class="muted" onclick="perDuzenle('${p.id}')">${p.gorev}</td>
+          <td onclick="perDuzenle('${p.id}')">${p.vardiya||'—'}</td>
+          <td class="mono muted" onclick="perDuzenle('${p.id}')">${p.tel||'—'}</td>
           <td><select onchange="perD(${i},this.value)" style="background:var(--s3);border:1px solid var(--bdr);color:var(--t);padding:3px 6px;border-radius:5px;font-size:9px">
             <option>Aktif</option><option>İzinli</option><option>Pasif</option><option>Ayrıldı</option>
           </select></td>
           <td class="mono muted">${fmtD(p.ise_giris)}</td>
-          <td><button class="ub del" onclick="perX('${p.id}')">✕</button></td>
+          <td><button class="ub" onclick="perDuzenle('${p.id}')" style="color:var(--b)">✎</button><button class="ub del" onclick="perX('${p.id}')">✕</button></td>
         </tr>`).join('')}</tbody></table></div>
       </div>
       <div class="card"><div class="ch"><div class="ct">Yeni Personel Ekle</div></div>
@@ -2660,6 +2662,94 @@ function rPersonel(){
 function addPer(){const ad=document.getElementById('PE-A').value.trim();if(!ad){toast('⚠️','Ad soyad zorunlu!');return;}
   const dt=document.getElementById('PE-DT')?.value;
   if(!dt){toast('⚠️','Doğum tarihi zorunlu! (İzin hesabı için gerekli)');return;}const p={id:uid(),ad,gorev:document.getElementById('PE-G').value,tel:document.getElementById('PE-T').value,vardiya:document.getElementById('PE-V').value,ise_giris:document.getElementById('PE-I').value,durum:document.getElementById('PE-D').value,dogum_tarihi:document.getElementById('PE-DT')?.value||'',tc:document.getElementById('PE-TC')?.value||''};PERSONEL.push(p);fbSave('personel',p.id,p);toast('◈',`${ad} eklendi!`);rPersonel();}
+function perDuzenle(id){
+  const p=PERSONEL.find(x=>x.id===id);
+  if(!p)return;
+  const modal=document.createElement('div');
+  modal.id='PER-EDIT-MODAL';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML=`
+    <div style="background:var(--s2);border:1px solid var(--bdr2);border-radius:16px;padding:24px;width:500px;max-width:100%;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-weight:800;font-size:15px">✎ Personel Düzenle</div>
+        <button onclick="document.getElementById('PER-EDIT-MODAL').remove()" style="background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;line-height:1">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg" style="grid-column:1/-1"><label class="fl">Ad Soyad *</label>
+          <input class="fi" id="PE-ED-AD" value="${p.ad||''}">
+        </div>
+        <div class="fg"><label class="fl">Görev</label>
+          <select class="fsel" id="PE-ED-G">
+            ${['Şoför','Operatör','Bakım Teknisyeni','Saha Şefi','Yönetici','Muhasebe','İdari Personel','Güvenlik','Diğer'].map(g=>`<option ${p.gorev===g?'selected':''}>${g}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Vardiya</label>
+          <select class="fsel" id="PE-ED-V">
+            ${['Gündüz','Gece','Dönüşümlü','Esnek'].map(v=>`<option ${p.vardiya===v?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Telefon</label>
+          <input class="fi" id="PE-ED-T" value="${p.tel||''}">
+        </div>
+        <div class="fg"><label class="fl">Durum</label>
+          <select class="fsel" id="PE-ED-D">
+            ${['Aktif','İzinli','Pasif','Ayrıldı'].map(d=>`<option ${p.durum===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">İşe Giriş</label>
+          <input class="fi" id="PE-ED-I" type="date" value="${p.ise_giris||''}">
+        </div>
+        <div class="fg"><label class="fl">Doğum Tarihi</label>
+          <input class="fi" id="PE-ED-DT" type="date" value="${p.dogum_tarihi||''}">
+        </div>
+        <div class="fg"><label class="fl">TC Kimlik No</label>
+          <input class="fi" id="PE-ED-TC" value="${p.tc||''}">
+        </div>
+        <div class="fg"><label class="fl">Ehliyet Sınıfı</label>
+          <input class="fi" id="PE-ED-EH" value="${p.ehliyet||''}" placeholder="B, C, D, E...">
+        </div>
+        <div class="fg"><label class="fl">Bölge</label>
+          <input class="fi" id="PE-ED-BL" value="${p.bolge||''}" placeholder="İstanbul, Ankara...">
+        </div>
+        <div class="fg" style="grid-column:1/-1"><label class="fl">Notlar</label>
+          <textarea class="fi" id="PE-ED-NOT" style="height:60px;resize:vertical">${p.notlar||''}</textarea>
+        </div>
+      </div>
+      <input type="hidden" id="PE-ED-ID" value="${p.id}">
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="fsub" style="flex:1" onclick="perKaydet()">◈ KAYDET</button>
+        <button onclick="document.getElementById('PER-EDIT-MODAL').remove()" style="padding:10px 16px;background:var(--s3);border:1px solid var(--bdr);border-radius:8px;color:var(--t3);cursor:pointer;font-size:12px">İptal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function perKaydet(){
+  const id=document.getElementById('PE-ED-ID')?.value;
+  const i=PERSONEL.findIndex(p=>p.id===id);
+  if(i<0)return;
+  const g=eid=>document.getElementById(eid)?.value||'';
+  PERSONEL[i]={
+    ...PERSONEL[i],
+    ad:g('PE-ED-AD'),
+    gorev:g('PE-ED-G'),
+    vardiya:g('PE-ED-V'),
+    tel:g('PE-ED-T'),
+    durum:g('PE-ED-D'),
+    ise_giris:g('PE-ED-I'),
+    dogum_tarihi:g('PE-ED-DT'),
+    tc:g('PE-ED-TC'),
+    ehliyet:g('PE-ED-EH'),
+    bolge:g('PE-ED-BL'),
+    notlar:g('PE-ED-NOT'),
+  };
+  fbSave('personel',id,PERSONEL[i]);
+  document.getElementById('PER-EDIT-MODAL')?.remove();
+  toast('✓','Personel güncellendi!');
+  rPersonel();
+}
+
 function perX(id){if(!confirm('Silinecek?'))return;const i=PERSONEL.findIndex(p=>p.id===id);if(i>=0){fbDel('personel',id);PERSONEL.splice(i,1);}localStorage.setItem('fv_per_version',Date.now());toast('◈','Silindi!');rPersonel();}
 function perD(i,d){PERSONEL[i].durum=d;fbSave('personel',PERSONEL[i].id,PERSONEL[i]);toast('◈',`${PERSONEL[i].ad}: ${d}`);}
 function expPer(){const h='Ad Soyad,Görev,Vardiya,Tel,Durum,İşe Giriş\n';dlCSV(h+PERSONEL.map(p=>`${p.ad},${p.gorev},${p.vardiya||''},${p.tel||''},${p.durum},${p.ise_giris||''}`).join('\n'),'personel_listesi');}
