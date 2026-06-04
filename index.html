@@ -2431,9 +2431,22 @@ function ykTab(el,id){
     cnt.querySelectorAll('.tab-c').forEach(t=>{t.classList.remove('on');t.style.display='none';});
   }
   el.classList.add('on');
+  // YK5 yoksa oluştur
+  if(id==='YK5'){
+    let yk5=document.getElementById('YK5');
+    if(!yk5){
+      yk5=document.createElement('div');
+      yk5.className='tab-c';
+      yk5.id='YK5';
+      if(cnt)cnt.appendChild(yk5);
+    }
+    yk5.classList.add('on');
+    yk5.style.display='block';
+    renderYK5();
+    return;
+  }
   const tc=document.getElementById(id);
   if(tc){tc.classList.add('on');tc.style.display='block';}
-  if(id==='YK5') renderYK5();
 }
 function ykSatir(list){if(!list.length)return`<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:14px">Kayıt bulunamadı</td></tr>`;
 return list.map(y=>`<tr><td class="mono muted">${fmtD(y.tarih)}</td><td class="mono bold green">${y.plaka}</td><td class="muted">${y.arac_tip||'?'}</td><td class="mono bold amber">${fmtN(y.litre)} L</td><td>${y.personel||'—'}</td><td class="muted">${y.bolge||'—'}</td><td><button class="ub del" onclick="ykX('${y.id}')">✕</button></td></tr>`).join('');}
@@ -3470,7 +3483,6 @@ function rSurucu(){
             </div>`).join('')}
         </div>
       </div>
-    <div class="tab-c" id="YK5"></div>
     </div>
   `;
 }
@@ -4742,7 +4754,8 @@ function rRaporlar(){
           <button onclick="${fn}" class="btn" style="padding:9px 14px;font-size:11px">${lbl} CSV ↓</button>`).join('')}
         <button onclick="tumYedekle()" class="btn" style="padding:9px 14px;font-size:11px;color:var(--g);border-color:rgba(0,255,136,.3)">☁ Tüm Veri JSON ↓</button>
       </div>
-    </div>`;
+    </div>
+    <div class="tab-c" id="YK5"></div>`;
   const opD=aylar.map(a=>OPERASYONLAR.filter(o=>o.tarih&&o.tarih.startsWith(a)).length);
   CH.rpOp=mkBar('RP-OP',ayL,opD,['#00ff88','#4488ff','#aa66ff','#ffaa00','#00ccff','#ff4455']);
   CH.rpMal=mkDonut('RP-MAL',['Yakıt','Arıza','Bakım'],[ykMal,azMal,bkMal],['#ffaa00','#ff4455','#aa66ff']);
