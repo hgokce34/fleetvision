@@ -3433,6 +3433,10 @@ function rSurucu(){
             ${gorev?`<div style="margin-top:8px;padding:6px 10px;background:rgba(0,255,136,.08);border-radius:6px;font-size:10px;color:var(--g)">
               🚛 Aktif: ${gorev.plaka} · ${fmtN(gorev.mesafe)} km · ${gorev.yakit}L yakıt
             </div>`:''}
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button onclick="surucuDuzenle('${p.id}')" style="flex:1;padding:5px;background:rgba(68,136,255,.15);border:1px solid rgba(68,136,255,.3);color:#4488ff;border-radius:6px;font-size:10px;cursor:pointer">✎ Düzenle</button>
+              <button onclick="surucuSil('${p.id}')" style="padding:5px 10px;background:rgba(255,68,85,.15);border:1px solid rgba(255,68,85,.3);color:var(--r);border-radius:6px;font-size:10px;cursor:pointer">✕</button>
+            </div>
           </div>`;
         }).join('')}
       </div>
@@ -3473,6 +3477,7 @@ function rSurucu(){
                 <div style="display:flex;gap:5px;align-items:center">
                   <span class="pill" style="background:${g.durum==='Aktif'?'rgba(0,255,136,.15)':'rgba(100,100,100,.15)'};color:${g.durum==='Aktif'?'var(--g)':'var(--t3)'}">${g.durum}</span>
                   ${g.durum==='Aktif'?`<button class="ub" onclick="gorevBitir(${i})" style="color:var(--a)">Bitir</button>`:''}
+                  <button class="ub del" onclick="gorevSil(${i})">✕</button>
                 </div>
               </div>
               <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--t3)">
@@ -3485,6 +3490,93 @@ function rSurucu(){
       </div>
     </div>
   `;
+}
+
+function surucuDuzenle(id){
+  const p=PERSONEL.find(x=>x.id===id);
+  if(!p)return;
+  const modal=document.createElement('div');
+  modal.id='SUR-EDIT-MODAL';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML=`
+    <div style="background:var(--s2);border:1px solid var(--bdr2);border-radius:16px;padding:24px;width:480px;max-width:100%;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-weight:800;font-size:15px">🧑‍✈️ Sürücü Düzenle</div>
+        <button onclick="document.getElementById('SUR-EDIT-MODAL').remove()" style="background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg" style="grid-column:1/-1"><label class="fl">Ad Soyad *</label>
+          <input class="fi" id="SUR-ED-AD" value="${p.ad||''}">
+        </div>
+        <div class="fg"><label class="fl">Ehliyet Sınıfı</label>
+          <input class="fi" id="SUR-ED-EH" value="${p.ehliyet||''}" placeholder="B, C, D, E...">
+        </div>
+        <div class="fg"><label class="fl">Atanan Araç</label>
+          <select class="fsel" id="SUR-ED-AR">
+            <option value="">Araç Yok</option>
+            ${ARACLAR.map(a=>`<option value="${a.plaka}" ${p.atanan_arac===a.plaka?'selected':''}>${a.plaka} — ${a.tip}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Toplam KM</label>
+          <input class="fi" id="SUR-ED-KM" type="number" value="${p.toplam_km||0}">
+        </div>
+        <div class="fg"><label class="fl">Performans Puanı (0-100)</label>
+          <input class="fi" id="SUR-ED-P" type="number" min="0" max="100" value="${p.puan||0}">
+        </div>
+        <div class="fg"><label class="fl">İhlal Sayısı</label>
+          <input class="fi" id="SUR-ED-IH" type="number" min="0" value="${p.ihlal||0}">
+        </div>
+        <div class="fg"><label class="fl">Telefon</label>
+          <input class="fi" id="SUR-ED-T" value="${p.tel||''}">
+        </div>
+        <div class="fg"><label class="fl">Durum</label>
+          <select class="fsel" id="SUR-ED-D">
+            ${['Aktif','İzinli','Pasif'].map(d=>`<option ${p.durum===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <input type="hidden" id="SUR-ED-ID" value="${p.id}">
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="fsub" style="flex:1" onclick="surucuKaydet()">◈ KAYDET</button>
+        <button onclick="document.getElementById('SUR-EDIT-MODAL').remove()" style="padding:10px 16px;background:var(--s3);border:1px solid var(--bdr);border-radius:8px;color:var(--t3);cursor:pointer;font-size:12px">İptal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function surucuKaydet(){
+  const id=document.getElementById('SUR-ED-ID')?.value;
+  const i=PERSONEL.findIndex(p=>p.id===id);
+  if(i<0)return;
+  const g=eid=>document.getElementById(eid)?.value||'';
+  PERSONEL[i]={
+    ...PERSONEL[i],
+    ad:g('SUR-ED-AD'),
+    ehliyet:g('SUR-ED-EH'),
+    atanan_arac:g('SUR-ED-AR'),
+    toplam_km:parseInt(g('SUR-ED-KM'))||0,
+    puan:parseInt(g('SUR-ED-P'))||0,
+    ihlal:parseInt(g('SUR-ED-IH'))||0,
+    tel:g('SUR-ED-T'),
+    durum:g('SUR-ED-D'),
+    surucu:true,
+  };
+  fbSave('personel',id,PERSONEL[i]);
+  document.getElementById('SUR-EDIT-MODAL')?.remove();
+  toast('✓','Sürücü güncellendi!');
+  rSurucu();
+}
+
+function surucuSil(id){
+  if(!confirm('Bu sürücüyü silmek istiyor musunuz?'))return;
+  const i=PERSONEL.findIndex(p=>p.id===id);
+  if(i<0)return;
+  // Sürücü özelliğini kaldır (personeli silme, sadece sürücü olmaktan çıkar)
+  PERSONEL[i].surucu=false;
+  fbSave('personel',id,PERSONEL[i]);
+  toast('✓','Sürücü listeden çıkarıldı!');
+  rSurucu();
 }
 
 function addGorev(){
@@ -3500,6 +3592,15 @@ function addGorev(){
   SURUCU_GOREV.push(yeni);
   fbSave('surucu_gorev',yeni.id,yeni);
   toast('🧑‍✈️',`${per.ad} → ${plaka} görevi atandı!`);
+  rSurucu();
+}
+
+function gorevSil(i){
+  if(!confirm('Görevi silmek istiyor musunuz?'))return;
+  const id=SURUCU_GOREV[i]?.id;
+  SURUCU_GOREV.splice(i,1);
+  if(id&&window._fbReady)fbDel('surucu_gorev',id);
+  toast('✓','Görev silindi!');
   rSurucu();
 }
 
