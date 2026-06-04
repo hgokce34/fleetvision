@@ -1949,7 +1949,7 @@ function aracTabloRender(){
     if(su.bolge)row+=`<td class="muted">${v.bolge||'—'}</td>`;
     if(su.yakit)row+=`<td class="muted">${v.yakit_tip||'—'}</td>`;
     if(su.bakim)row+=`<td><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;background:var(--s4);border-radius:2px;min-width:40px"><div style="height:100%;width:${v.bkm||0}%;background:${bkmC(v.bkm||0)};border-radius:2px"></div></div><span style="font-size:8px;color:${bkmC(v.bkm||0)};font-family:var(--mono)">${v.bkm||0}%</span></div></td>`;
-    row+=`<td style="display:flex;gap:3px"><button class="ub" onclick="aracS(${gIdx})">+Sa</button><button class="ub del" onclick="aracX('${v.id}')">✕</button></td>`;
+    row+=`<td style="display:flex;gap:3px"><button class="ub" onclick="aracS(${gIdx})">+Sa</button><button class="ub" onclick="aracDuzenle('${v.id}')" style="color:var(--b)">✎</button><button class="ub del" onclick="aracX('${v.id}')">✕</button></td>`;
     row+='</tr>';
     return row;
   }).join('');
@@ -2126,6 +2126,102 @@ function addArac(){
     fbSave('araclar',a.id,a);
   }
   toast('◈',`${p} eklendi!`);
+  rArac();
+}
+
+function aracDuzenle(id){
+  const a=ARACLAR.find(x=>x.id===id);
+  if(!a)return;
+  const modal=document.createElement('div');
+  modal.id='ARAC-EDIT-MODAL';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML=`
+    <div style="background:var(--s2);border:1px solid var(--bdr2);border-radius:16px;padding:24px;width:540px;max-width:100%;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-weight:800;font-size:15px">🚛 Araç Düzenle — ${a.plaka}</div>
+        <button onclick="document.getElementById('ARAC-EDIT-MODAL').remove()" style="background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">Plaka *</label>
+          <input class="fi" id="AR-ED-P" value="${a.plaka||''}" style="font-family:var(--mono);font-weight:700">
+        </div>
+        <div class="fg"><label class="fl">Araç Tipi</label>
+          <select class="fsel" id="AR-ED-T">
+            ${['Kamyon','Tır','Forklift','İş Makinesi','Minibüs','Otobüs','Beton Mikser','Vinç','Damper','Diğer'].map(t=>`<option ${a.tip===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Marka</label>
+          <input class="fi" id="AR-ED-M" value="${a.marka||''}">
+        </div>
+        <div class="fg"><label class="fl">Model</label>
+          <input class="fi" id="AR-ED-MO" value="${a.model||''}">
+        </div>
+        <div class="fg"><label class="fl">Yıl</label>
+          <input class="fi" id="AR-ED-Y" type="number" value="${a.yil||''}">
+        </div>
+        <div class="fg"><label class="fl">Yakıt Tipi</label>
+          <select class="fsel" id="AR-ED-YT">
+            ${['Dizel','Benzin','LPG','Elektrik','Hibrit'].map(y=>`<option ${a.yakit_tip===y?'selected':''}>${y}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Durum</label>
+          <select class="fsel" id="AR-ED-D">
+            ${['Aktif','Bakımda','Arızalı','Pasif'].map(d=>`<option ${a.durum===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Bölge</label>
+          <input class="fi" id="AR-ED-B" value="${a.bolge||''}" placeholder="İstanbul, Ankara...">
+        </div>
+        <div class="fg"><label class="fl">Saat (Motor)</label>
+          <input class="fi" id="AR-ED-S" type="number" value="${a.saat||0}">
+        </div>
+        <div class="fg"><label class="fl">KM</label>
+          <input class="fi" id="AR-ED-KM" type="number" value="${a.km||0}">
+        </div>
+        <div class="fg"><label class="fl">Sigorta Bitiş</label>
+          <input class="fi" id="AR-ED-SIG" type="date" value="${a.sigorta_bitis||''}">
+        </div>
+        <div class="fg"><label class="fl">Muayene Bitiş</label>
+          <input class="fi" id="AR-ED-MUA" type="date" value="${a.muayene_bitis||''}">
+        </div>
+        <div class="fg" style="grid-column:1/-1"><label class="fl">Notlar</label>
+          <textarea class="fi" id="AR-ED-NOT" style="height:60px;resize:vertical">${a.notlar||''}</textarea>
+        </div>
+      </div>
+      <input type="hidden" id="AR-ED-ID" value="${a.id}">
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="fsub" style="flex:1" onclick="aracKaydet()">◈ KAYDET</button>
+        <button onclick="document.getElementById('ARAC-EDIT-MODAL').remove()" style="padding:10px 16px;background:var(--s3);border:1px solid var(--bdr);border-radius:8px;color:var(--t3);cursor:pointer;font-size:12px">İptal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function aracKaydet(){
+  const id=document.getElementById('AR-ED-ID')?.value;
+  const i=ARACLAR.findIndex(a=>a.id===id);
+  if(i<0)return;
+  const g=eid=>document.getElementById(eid)?.value||'';
+  ARACLAR[i]={
+    ...ARACLAR[i],
+    plaka:g('AR-ED-P').toUpperCase(),
+    tip:g('AR-ED-T'),
+    marka:g('AR-ED-M'),
+    model:g('AR-ED-MO'),
+    yil:parseInt(g('AR-ED-Y'))||null,
+    yakit_tip:g('AR-ED-YT'),
+    durum:g('AR-ED-D'),
+    bolge:g('AR-ED-B'),
+    saat:parseFloat(g('AR-ED-S'))||0,
+    km:parseFloat(g('AR-ED-KM'))||0,
+    sigorta_bitis:g('AR-ED-SIG'),
+    muayene_bitis:g('AR-ED-MUA'),
+    notlar:g('AR-ED-NOT'),
+  };
+  fbSave('araclar',id,ARACLAR[i]);
+  document.getElementById('ARAC-EDIT-MODAL')?.remove();
+  toast('✓','Araç güncellendi!');
   rArac();
 }
 
