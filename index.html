@@ -2651,13 +2651,15 @@ function rPersonel(){
         <div class="fg"><label class="fl">Vardiya</label><select class="fsel" id="PE-V"><option>Gündüz</option><option>Gece</option><option>Dönüşümlü</option></select></div></div>
         <div class="frow"><div class="fg"><label class="fl">İşe Giriş</label><input class="fi" id="PE-I" type="date" value="${today()}"></div>
         <div class="fg"><label class="fl">Durum</label><select class="fsel" id="PE-D"><option>Aktif</option><option>İzinli</option><option>Pasif</option></select></div></div>
-        <div class="frow"><div class="fg"><label class="fl">Doğum Tarihi</label><input class="fi" id="PE-DT" type="date"></div>
+        <div class="frow"><div class="fg"><label class="fl">Doğum Tarihi *</label><input class="fi" id="PE-DT" type="date" required style="border-color:var(--a)"></div>
         <div class="fg"><label class="fl">TC Kimlik No</label><input class="fi" id="PE-TC" placeholder="XXXXXXXXXXX"></div></div>
         <button class="fsub" onclick="addPer()">＋ PERSONEL EKLE</button>
       </div>
     </div>`;
 }
-function addPer(){const ad=document.getElementById('PE-A').value.trim();if(!ad){toast('⚠️','Ad soyad zorunlu!');return;}const p={id:uid(),ad,gorev:document.getElementById('PE-G').value,tel:document.getElementById('PE-T').value,vardiya:document.getElementById('PE-V').value,ise_giris:document.getElementById('PE-I').value,durum:document.getElementById('PE-D').value,dogum_tarihi:document.getElementById('PE-DT')?.value||'',tc:document.getElementById('PE-TC')?.value||''};PERSONEL.push(p);fbSave('personel',p.id,p);toast('◈',`${ad} eklendi!`);rPersonel();}
+function addPer(){const ad=document.getElementById('PE-A').value.trim();if(!ad){toast('⚠️','Ad soyad zorunlu!');return;}
+  const dt=document.getElementById('PE-DT')?.value;
+  if(!dt){toast('⚠️','Doğum tarihi zorunlu! (İzin hesabı için gerekli)');return;}const p={id:uid(),ad,gorev:document.getElementById('PE-G').value,tel:document.getElementById('PE-T').value,vardiya:document.getElementById('PE-V').value,ise_giris:document.getElementById('PE-I').value,durum:document.getElementById('PE-D').value,dogum_tarihi:document.getElementById('PE-DT')?.value||'',tc:document.getElementById('PE-TC')?.value||''};PERSONEL.push(p);fbSave('personel',p.id,p);toast('◈',`${ad} eklendi!`);rPersonel();}
 function perX(id){if(!confirm('Silinecek?'))return;const i=PERSONEL.findIndex(p=>p.id===id);if(i>=0){fbDel('personel',id);PERSONEL.splice(i,1);}localStorage.setItem('fv_per_version',Date.now());toast('◈','Silindi!');rPersonel();}
 function perD(i,d){PERSONEL[i].durum=d;fbSave('personel',PERSONEL[i].id,PERSONEL[i]);toast('◈',`${PERSONEL[i].ad}: ${d}`);}
 function expPer(){const h='Ad Soyad,Görev,Vardiya,Tel,Durum,İşe Giriş\n';dlCSV(h+PERSONEL.map(p=>`${p.ad},${p.gorev},${p.vardiya||''},${p.tel||''},${p.durum},${p.ise_giris||''}`).join('\n'),'personel_listesi');}
@@ -2830,7 +2832,7 @@ function izinHaklariHesapla(){
     return `<tr>
       <td class="bold">${p.ad}</td>
       <td class="mono muted">${p.ise_giris?new Date(p.ise_giris).toLocaleDateString('tr-TR'):'—'}</td>
-      <td class="mono">${yil} yıl${yas?` · ${yas} yaş`:''}</td>
+      <td class="mono">${yil} yıl${yas?` · ${yas} yaş`:`<button onclick="izinDtDuzenle('${p.id}')" style="margin-left:5px;background:rgba(255,170,0,.15);border:1px solid var(--a);color:var(--a);padding:2px 6px;border-radius:4px;font-size:9px;cursor:pointer">+ Yaş Ekle</button>`}</td>
       <td class="mono" style="color:var(--t3);font-size:9px">${yillikHak} gün/yıl</td>
       <td class="mono bold" style="color:var(--b);cursor:pointer" onclick="izinHakkiDuzenle('${p.id}','hak',${manuelHak})" title="Düzenle">${manuelHak} gün ✎</td>
       <td class="mono" style="color:var(--r);cursor:pointer" onclick="izinHakkiDuzenle('${p.id}','kullanilan',${manuelKullanilan})" title="Düzenle">${manuelKullanilan} gün ✎</td>
@@ -2838,6 +2840,42 @@ function izinHaklariHesapla(){
       <td><span class="pill" style="background:${durumRenk}20;color:${durumRenk}">${durum}</span></td>
     </tr>`;
   }).join('');
+}
+
+function izinDtDuzenle(perId){
+  const p=PERSONEL.find(x=>x.id===perId);
+  if(!p)return;
+  // Güzel bir modal oluştur
+  const modal=document.createElement('div');
+  modal.id='DT-MODAL';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`
+    <div style="background:var(--s2);border:1px solid var(--bdr2);border-radius:16px;padding:24px;width:360px;max-width:95vw">
+      <div style="font-weight:700;font-size:14px;margin-bottom:16px">📅 Doğum Tarihi Güncelle</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${p.ad}</div>
+      <div class="fg">
+        <label class="fl">Doğum Tarihi *</label>
+        <input class="fi" id="DT-INPUT" type="date" value="${p.dogum_tarihi||''}">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="fsub" style="flex:1" onclick="izinDtKaydet('${perId}')">◈ KAYDET</button>
+        <button onclick="document.getElementById('DT-MODAL').remove()" style="padding:10px 16px;background:var(--s3);border:1px solid var(--bdr);border-radius:8px;color:var(--t3);cursor:pointer;font-size:12px">İptal</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function izinDtKaydet(perId){
+  const dt=document.getElementById('DT-INPUT')?.value;
+  if(!dt){toast('⚠️','Doğum tarihi girin!');return;}
+  const i=PERSONEL.findIndex(p=>p.id===perId);
+  if(i<0)return;
+  PERSONEL[i].dogum_tarihi=dt;
+  fbSave('personel',perId,PERSONEL[i]);
+  document.getElementById('DT-MODAL')?.remove();
+  toast('✓','Doğum tarihi güncellendi!');
+  rIzinHakki();
 }
 
 function izinHakkiDuzenle(perId, alan, mevcutDeger){
